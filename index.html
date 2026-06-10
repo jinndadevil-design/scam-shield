@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>TruthLens — Live Lie Detector for Conversations</title>
+<meta name="description" content="TruthLens listens to the conversation and flags in real time when the story doesn't hold up — and tells you exactly what to ask next.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#06090f;
+    --panel:rgba(255,255,255,.035);
+    --panel-edge:rgba(255,255,255,.08);
+    --ink:#e8eef6;
+    --ink-dim:#93a1b5;
+    --ink-faint:#5c6b80;
+    --lens:#37e6c0;
+    --lens-soft:rgba(55,230,192,.14);
+    --red:#ff5d73;
+    --red-soft:rgba(255,93,115,.12);
+    --amber:#ffc14d;
+    --amber-soft:rgba(255,193,77,.12);
+    --green:#41e08b;
+    --green-soft:rgba(65,224,139,.12);
+    --font-display:"Space Grotesk",system-ui,sans-serif;
+    --font-body:"Inter",system-ui,sans-serif;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:16px;
+    line-height:1.6;
+    min-height:100vh;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  .aurora{
+    position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(60vw 40vh at 75% -10%, rgba(55,230,192,.10), transparent 60%),
+      radial-gradient(50vw 40vh at 10% 110%, rgba(70,120,255,.08), transparent 60%);
+    animation:breathe 9s ease-in-out infinite alternate;
+  }
+  @keyframes breathe{from{opacity:.7}to{opacity:1}}
+  .grain{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.05;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");}
+
+  .wrap{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:0 20px 90px}
+
+  nav{display:flex;align-items:center;gap:12px;padding:22px 0 8px}
+  .logo{display:flex;align-items:center;gap:11px;font-family:var(--font-display);font-weight:700;font-size:1.25rem;letter-spacing:.2px}
+  .lens-mark{width:30px;height:30px;border-radius:50%;position:relative;flex:0 0 auto;
+    background:radial-gradient(circle at 35% 35%, rgba(55,230,192,.9), rgba(55,230,192,.12) 55%, transparent 70%);
+    box-shadow:0 0 18px rgba(55,230,192,.45), inset 0 0 0 1.5px rgba(55,230,192,.8);}
+  .lens-mark::after{content:"";position:absolute;right:-5px;bottom:-5px;width:11px;height:3px;border-radius:2px;background:var(--lens);transform:rotate(45deg);box-shadow:0 0 8px rgba(55,230,192,.6)}
+  .nav-tag{margin-left:auto;font-size:.72rem;color:var(--ink-faint);border:1px solid var(--panel-edge);border-radius:99px;padding:5px 12px;letter-spacing:.6px;text-transform:uppercase}
+
+  header{padding:44px 0 30px;text-align:left}
+  h1{font-family:var(--font-display);font-size:clamp(2rem,6vw,3.2rem);line-height:1.08;font-weight:700;letter-spacing:-.5px}
+  h1 .glow{color:var(--lens);text-shadow:0 0 28px rgba(55,230,192,.4)}
+  .sub{margin-top:16px;color:var(--ink-dim);font-size:clamp(.96rem,2.6vw,1.1rem);max-width:600px}
+  .sub b{color:var(--ink);font-weight:600}
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--panel-edge);
+    border-radius:var(--radius);
+    backdrop-filter:blur(14px);
+    padding:22px;
+  }
+  .main-card{margin-top:8px;box-shadow:0 24px 60px -30px rgba(0,0,0,.8)}
+
+  /* tabs */
+  .tabs{display:flex;gap:8px;margin-bottom:18px}
+  .tab{
+    flex:1;font-family:var(--font-display);font-weight:600;font-size:.92rem;
+    background:rgba(255,255,255,.04);border:1px solid var(--panel-edge);color:var(--ink-dim);
+    border-radius:12px;padding:12px 10px;cursor:pointer;transition:all .2s;min-height:46px;
+  }
+  .tab.active{color:#04261e;background:linear-gradient(135deg,#3ff0c8,#19b894);border-color:transparent;box-shadow:0 8px 24px -8px rgba(55,230,192,.5)}
+  .pane{display:none}
+  .pane.active{display:block}
+
+  /* LIVE pane */
+  .live-stage{text-align:center;padding:8px 0 4px}
+  .mic-wrap{position:relative;width:120px;height:120px;margin:10px auto 6px}
+  .mic-ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(55,230,192,.25)}
+  .listening .mic-ring{animation:pulse 1.6s ease-out infinite}
+  .listening .mic-ring.r2{animation-delay:.5s}
+  .listening .mic-ring.r3{animation-delay:1s}
+  @keyframes pulse{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.65);opacity:0}}
+  .mic-btn{
+    position:absolute;inset:14px;border-radius:50%;border:none;cursor:pointer;
+    background:linear-gradient(135deg,#3ff0c8,#19b894);
+    box-shadow:0 14px 40px -10px rgba(55,230,192,.65);
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .15s, filter .2s;
+  }
+  .mic-btn:hover{transform:scale(1.05)}
+  .mic-btn svg{width:34px;height:34px;fill:#04261e}
+  .listening .mic-btn{background:linear-gradient(135deg,#ff7285,#e03a52);box-shadow:0 14px 40px -10px rgba(255,93,115,.6)}
+  .listening .mic-btn svg{fill:#2b0810}
+  .live-status{font-family:var(--font-display);font-weight:600;font-size:1rem;margin-top:6px}
+  .live-status .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ink-faint);margin-right:8px;vertical-align:1px}
+  .listening-status .dot{background:var(--red);box-shadow:0 0 10px var(--red);animation:blink 1.1s infinite}
+  @keyframes blink{50%{opacity:.3}}
+  .live-hint{color:var(--ink-faint);font-size:.84rem;margin-top:6px}
+  .live-controls{display:flex;justify-content:center;gap:14px;margin-top:14px}
+  .ghost-btn{background:none;border:1px solid var(--panel-edge);border-radius:10px;color:var(--ink-dim);font-size:.84rem;padding:9px 16px;cursor:pointer;min-height:40px}
+  .ghost-btn:hover{color:var(--ink);border-color:rgba(255,255,255,.2)}
+
+  .transcript-card{margin-top:18px;text-align:left;background:rgba(0,0,0,.28);border:1px solid var(--panel-edge);border-radius:12px;padding:16px;min-height:96px;max-height:280px;overflow-y:auto}
+  .transcript-label{font-size:.7rem;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px}
+  .transcript{font-size:.96rem;line-height:1.9;color:var(--ink-dim);white-space:pre-wrap}
+  .transcript .interim{opacity:.45;font-style:italic}
+  .transcript .placeholder{color:var(--ink-faint);font-style:italic}
+  .no-speech{display:none;margin-top:12px;font-size:.85rem;color:var(--amber);background:var(--amber-soft);border:1px solid rgba(255,193,77,.3);border-radius:10px;padding:10px 14px;text-align:left}
+
+  /* PASTE pane */
+  textarea{
+    width:100%;min-height:160px;resize:vertical;
+    background:rgba(0,0,0,.28);
+    border:1px solid var(--panel-edge);
+    border-radius:12px;
+    color:var(--ink);font-family:var(--font-body);font-size:.98rem;line-height:1.65;
+    padding:16px;outline:none;transition:border-color .25s, box-shadow .25s;
+  }
+  textarea:focus{border-color:rgba(55,230,192,.55);box-shadow:0 0 0 3px rgba(55,230,192,.12)}
+  textarea::placeholder{color:var(--ink-faint)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .chip{
+    font-size:.8rem;color:var(--ink-dim);
+    background:rgba(255,255,255,.04);border:1px solid var(--panel-edge);
+    border-radius:99px;padding:7px 14px;cursor:pointer;transition:all .2s;min-height:34px;
+  }
+  .chip:hover{color:var(--lens);border-color:rgba(55,230,192,.5);background:var(--lens-soft)}
+  .actions{display:flex;align-items:center;gap:14px;margin-top:16px;flex-wrap:wrap}
+  .analyze-btn{
+    font-family:var(--font-display);font-weight:600;font-size:1rem;letter-spacing:.3px;
+    color:#04261e;background:linear-gradient(135deg,#3ff0c8,#19b894);
+    border:none;border-radius:12px;padding:14px 30px;cursor:pointer;min-height:48px;
+    box-shadow:0 10px 30px -8px rgba(55,230,192,.55);
+    transition:transform .15s, box-shadow .15s, filter .2s;
+  }
+  .analyze-btn:hover{transform:translateY(-2px)}
+  .analyze-btn:disabled{filter:saturate(.3) brightness(.7);cursor:wait;transform:none}
+  .clear-btn{background:none;border:none;color:var(--ink-faint);font-size:.85rem;cursor:pointer;min-height:44px;padding:0 6px}
+  .clear-btn:hover{color:var(--ink-dim)}
+
+  .scanner{display:none;margin-top:26px;text-align:center;padding:30px 10px}
+  .scanner.on{display:block}
+  .scan-ring{
+    width:74px;height:74px;border-radius:50%;margin:0 auto 18px;position:relative;
+    border:2px solid rgba(55,230,192,.18);
+  }
+  .scan-ring::before{content:"";position:absolute;inset:-2px;border-radius:50%;
+    border:2px solid transparent;border-top-color:var(--lens);
+    animation:spin 1s linear infinite;filter:drop-shadow(0 0 8px rgba(55,230,192,.7))}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .scan-text{color:var(--ink-dim);font-size:.92rem;min-height:1.5em}
+
+  /* results */
+  #results{display:none;margin-top:30px}
+  #results.on{display:block;animation:rise .6s cubic-bezier(.2,.8,.2,1)}
+  @keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+  .verdict-card{display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+
+  .gauge{position:relative;width:172px;height:172px;flex:0 0 auto;margin:0 auto}
+  .gauge svg{transform:rotate(-90deg)}
+  .gauge .track{fill:none;stroke:rgba(255,255,255,.07);stroke-width:11}
+  .gauge .bar{fill:none;stroke-width:11;stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(.3,.8,.2,1), stroke .5s}
+  .gauge-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .gauge-num{font-family:var(--font-display);font-size:2.6rem;font-weight:700;line-height:1}
+  .gauge-label{font-size:.68rem;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-faint);margin-top:5px}
+  .verdict-text{flex:1;min-width:240px}
+  .verdict-band{display:inline-block;font-family:var(--font-display);font-weight:600;font-size:.8rem;letter-spacing:.8px;text-transform:uppercase;border-radius:99px;padding:6px 14px;margin-bottom:10px}
+  .verdict-title{font-family:var(--font-display);font-size:1.5rem;font-weight:700;margin-bottom:8px}
+  .verdict-sub{color:var(--ink-dim);font-size:.95rem}
+  .confidence{margin-top:10px;font-size:.8rem;color:var(--ink-faint)}
+
+  .sec-title{font-family:var(--font-display);font-weight:600;font-size:1.05rem;margin:34px 0 14px;display:flex;align-items:center;gap:10px}
+  .sec-title .dot{width:8px;height:8px;border-radius:50%;background:var(--lens);box-shadow:0 0 10px rgba(55,230,192,.8)}
+
+  .signals{display:grid;grid-template-columns:1fr;gap:10px}
+  .signal{
+    display:flex;gap:14px;align-items:flex-start;
+    background:var(--panel);border:1px solid var(--panel-edge);border-radius:14px;padding:14px 16px;
+    opacity:0;transform:translateY(12px);animation:rise .5s forwards;
+  }
+  .signal .icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex:0 0 auto;font-weight:700}
+  .signal.red .icon{background:var(--red-soft);color:var(--red)}
+  .signal.amber .icon{background:var(--amber-soft);color:var(--amber)}
+  .signal.green .icon{background:var(--green-soft);color:var(--green)}
+  .signal h4{font-size:.95rem;font-weight:600;margin-bottom:3px}
+  .signal p{font-size:.86rem;color:var(--ink-dim)}
+  .signal .quote{display:inline-block;margin-top:6px;font-size:.82rem;color:var(--ink);background:rgba(255,255,255,.05);border-left:2px solid currentColor;border-radius:0 8px 8px 0;padding:4px 10px;font-style:italic}
+  .signal.red .quote{border-color:var(--red)}
+  .signal.amber .quote{border-color:var(--amber)}
+  .signal.green .quote{border-color:var(--green)}
+
+  .reading-wrap{display:none}
+  .reading{font-size:.97rem;line-height:1.9;color:var(--ink-dim);white-space:pre-wrap}
+  mark{border-radius:5px;padding:1px 5px;color:var(--ink);background:transparent}
+  mark.m-red{background:var(--red-soft);box-shadow:inset 0 -1.5px 0 var(--red)}
+  mark.m-amber{background:var(--amber-soft);box-shadow:inset 0 -1.5px 0 var(--amber)}
+  mark.m-green{background:var(--green-soft);box-shadow:inset 0 -1.5px 0 var(--green)}
+
+  .q-list{display:flex;flex-direction:column;gap:10px;counter-reset:q}
+  .q{
+    background:linear-gradient(135deg, rgba(55,230,192,.07), rgba(55,230,192,.02));
+    border:1px solid rgba(55,230,192,.2);border-radius:14px;padding:14px 16px 14px 52px;position:relative;
+    font-size:.93rem;opacity:0;transform:translateY(12px);animation:rise .5s forwards;
+  }
+  .q::before{
+    counter-increment:q;content:counter(q);
+    position:absolute;left:14px;top:13px;width:26px;height:26px;border-radius:8px;
+    background:var(--lens-soft);color:var(--lens);font-family:var(--font-display);font-weight:700;font-size:.85rem;
+    display:flex;align-items:center;justify-content:center;
+  }
+
+  .honesty{
+    margin-top:36px;padding:16px 18px;border-radius:14px;font-size:.82rem;color:var(--ink-faint);
+    border:1px dashed rgba(255,255,255,.14);
+  }
+  .honesty b{color:var(--ink-dim)}
+  footer{margin-top:70px;padding-top:26px;border-top:1px solid var(--panel-edge);color:var(--ink-faint);font-size:.8rem;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+  @media (max-width:520px){
+    header{padding:32px 0 22px}
+    .card{padding:16px}
+    .verdict-card{gap:16px}
+    .verdict-text{text-align:center}
+    .verdict-title{font-size:1.3rem}
+    .analyze-btn{width:100%}
+    .transcript-card{max-height:220px}
+  }
+</style>
+</head>
+<body>
+<div class="aurora"></div><div class="grain"></div>
+<div class="wrap">
+
+  <nav>
+    <div class="logo"><span class="lens-mark"></span>TruthLens</div>
+    <span class="nav-tag">v1 preview</span>
+  </nav>
+
+  <header>
+    <h1>Catch the lie<br><span class="glow">while they're talking.</span></h1>
+    <p class="sub">Put your phone on the table. TruthLens <b>listens to the conversation live</b>, watches the story for cracks — contradictions, dodged questions, fog, pressure — and quietly hands you <b>the exact question to ask next</b>.</p>
+  </header>
+
+  <div class="card main-card">
+    <div class="tabs">
+      <button class="tab active" id="tabLive">🎙 Live conversation</button>
+      <button class="tab" id="tabPaste">✍ Paste a message</button>
+    </div>
+
+    <!-- LIVE -->
+    <div class="pane active" id="paneLive">
+      <div class="live-stage" id="liveStage">
+        <div class="mic-wrap">
+          <div class="mic-ring"></div>
+          <div class="mic-ring r2"></div>
+          <div class="mic-ring r3"></div>
+          <button class="mic-btn" id="micBtn" aria-label="Start listening">
+            <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+          </button>
+        </div>
+        <div class="live-status" id="liveStatus"><span class="dot"></span>Tap to start listening</div>
+        <div class="live-hint" id="liveHint">Works best in Chrome · nothing is recorded or stored</div>
+        <div class="live-controls">
+          <button class="ghost-btn" id="resetLive">Reset session</button>
+        </div>
+        <div class="no-speech" id="noSpeech"></div>
+      </div>
+      <div class="transcript-card">
+        <div class="transcript-label">Live transcript · suspicious lines light up</div>
+        <div class="transcript" id="transcript"><span class="placeholder">The conversation will appear here as they speak…</span></div>
+      </div>
+    </div>
+
+    <!-- PASTE -->
+    <div class="pane" id="panePaste">
+      <textarea id="input" placeholder="Paste the message, excuse, story, or statement you're not sure about…&#10;&#10;A text from a stranger, a deal that sounds too good, an excuse that feels off — anything." spellcheck="false"></textarea>
+      <div class="chips">
+        <button class="chip" data-demo="scam">Try: suspicious message</button>
+        <button class="chip" data-demo="excuse">Try: vague excuse</button>
+        <button class="chip" data-demo="solid">Try: solid story</button>
+      </div>
+      <div class="actions">
+        <button class="analyze-btn" id="go">Analyze it</button>
+        <button class="clear-btn" id="clear">Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="scanner" id="scanner">
+    <div class="scan-ring"></div>
+    <div class="scan-text" id="scanText">Scanning statement structure…</div>
+  </div>
+
+  <div id="results">
+    <div class="card verdict-card">
+      <div class="gauge">
+        <svg width="172" height="172" viewBox="0 0 172 172">
+          <circle class="track" cx="86" cy="86" r="76"></circle>
+          <circle class="bar" id="gaugeBar" cx="86" cy="86" r="76"></circle>
+        </svg>
+        <div class="gauge-center">
+          <div class="gauge-num" id="gaugeNum">0</div>
+          <div class="gauge-label">credibility</div>
+        </div>
+      </div>
+      <div class="verdict-text">
+        <span class="verdict-band" id="band"></span>
+        <div class="verdict-title" id="verdictTitle"></div>
+        <p class="verdict-sub" id="verdictSub"></p>
+        <p class="confidence" id="confidence"></p>
+      </div>
+    </div>
+
+    <div id="signalsWrap">
+      <div class="sec-title"><span class="dot"></span>What the lens is picking up</div>
+      <div class="signals" id="signals"></div>
+    </div>
+
+    <div class="reading-wrap" id="readingWrap">
+      <div class="sec-title"><span class="dot"></span>The story, under the lens</div>
+      <div class="card"><div class="reading" id="reading"></div></div>
+    </div>
+
+    <div id="qWrap">
+      <div class="sec-title"><span class="dot"></span>Ask them this</div>
+      <div class="q-list" id="questions"></div>
+    </div>
+
+    <div class="honesty">
+      <b>Why we don't say "LIE":</b> decades of research (24,000+ tested judges, every major method) prove no signal in the face, voice, or body reliably reveals lying — and tools that pretend otherwise mostly accuse honest people. What <i>does</i> work is analyzing the story itself: checkable details, pressure tactics, and evasion. TruthLens shows you what to verify — the truth comes out when you check.
+    </div>
+  </div>
+
+  <footer>
+    <span>TruthLens · reads stories, not minds</span>
+    <span>built on statement-analysis science</span>
+  </footer>
+</div>
+
+<script>
+/* ---------------- demo texts ---------------- */
+const DEMOS = {
+  scam: `Hello dear, I am Sergeant Mark Williams, US Army, currently deployed overseas on a peacekeeping mission. I have felt a strong connection with you. I need your help urgently — my bank account was locked by the bank security department and I cannot access my funds. Please buy $200 in iTunes gift cards right now and send me the codes, it is 100% safe and I will pay you back double, guaranteed. Please keep this between us, do not tell anyone in your family. Trust me, why would I lie to you? Message me directly on WhatsApp, this site deletes my messages. You must act now, my situation expires today.`,
+  excuse: `I was out with some friends last night — you don't know them. We went to a place in town and left before midnight, I think. The car had some issues, that's why things got delayed. Why are you questioning me? Trust me, nothing happened.`,
+  solid: `I left the office at 6:15pm on Tuesday and took the 6:40 ferry to Hulhumalé with Ahmed from accounts. We had dinner at Kandu Café — I paid 240 rufiyaa by card at 8:05pm, so it's on my bank statement. The waiter, Hassan, knows us. I sent you a photo from the table at 8:20pm. You can call Ahmed or check the receipt — I kept it in my wallet.`
+};
+
+/* ---------------- detector engine ---------------- */
+const DETECTORS = [
+  // -------- pressure & scam playbook (red) --------
+  {id:"urgency", tone:"red", label:"Manufactured urgency",
+   why:"Pressure to act immediately is the #1 manipulation tactic — it exists to stop you from checking.",
+   question:"Say: “I’ll decide tomorrow.” A real situation survives 24 hours — a script panics.",
+   weight:-7, cap:2,
+   re:/\b(act now|right now|immediately|urgent(ly)?|asap|last chance|expires? (today|soon)|within \d+ hours?|hurry|you must act|final (warning|notice))\b/gi},
+  {id:"secrecy", tone:"red", label:"Demands secrecy",
+   why:"“Don’t tell anyone” isolates you from the people who would spot the problem instantly.",
+   question:"Tell them you’re discussing it with a friend or family member first — watch the reaction.",
+   weight:-9, cap:2,
+   re:/\b(keep (this|it) between us|don'?t tell (anyone|your|anybody)|our (little )?secret|keep (this|it) (secret|private|quiet)|delete this (message|chat))\b/gi},
+  {id:"oddpay", tone:"red", label:"Untraceable payment",
+   why:"Gift cards, wire transfers and crypto are the payment rails of fraud — untraceable and unrecoverable.",
+   question:"Ask why a normal, reversible payment method won’t work. There is never a good answer.",
+   weight:-12, cap:2,
+   re:/\b(gift ?cards?|itunes|steam card|google play( card)?|western union|moneygram|wire transfer|crypto(currency)?|bitcoin|usdt|prepaid card)\b/gi},
+  {id:"offplatform", tone:"red", label:"Moving you off-platform",
+   why:"Scammers pull conversations to unmonitored channels before the platform flags them.",
+   question:"Keep the conversation where it started and see how hard they push against it.",
+   weight:-6, cap:1,
+   re:/\b(whats?app( me)?|telegram|signal app|text me at|message me directly|email me directly|this (site|app) deletes)\b/gi},
+  {id:"toogood", tone:"red", label:"Too good to be true",
+   why:"Guarantees and “risk-free” returns don’t exist — certainty language is a sales script, not reality.",
+   question:"Ask for one independently checkable proof (regulator, registry, reference) — then actually check it.",
+   weight:-8, cap:2,
+   re:/\b(guaranteed|risk[- ]?free|100% (safe|sure|legit|guaranteed)|double your|no risk|easy money|get rich|pay you back double)\b/gi},
+  {id:"authority", tone:"red", label:"Fake authority pressure",
+   why:"Impersonating banks, military, or government adds false legitimacy and fear — classic script ingredient.",
+   question:"Stop replying and contact that organisation through its official number yourself.",
+   weight:-8, cap:2,
+   re:/\b(bank security( department)?|security department|customs office|tax office|irs|federal agent|police will|arrest warrant|account (was )?(locked|suspended|compromised)|deployed overseas|peacekeeping mission)\b/gi},
+
+  // -------- evasion & language patterns (amber) --------
+  {id:"trustplea", tone:"amber", label:"Trust pleading",
+   why:"Truth rarely needs a sales pitch. “Trust me / I swear / why would I lie” substitutes emotion for evidence.",
+   question:"Reply: “I don’t need to trust you — just show me.” Then ask for the specific proof.",
+   weight:-3, cap:2,
+   re:/\b(trust me|believe me|i swear|to be honest|honestly|i'?m not lying|why would i lie|god'?s honest|i promise you)\b/gi},
+  {id:"deflection", tone:"amber", label:"Deflects instead of answers",
+   why:"Attacking the question (“why are you asking?”) instead of answering it is a textbook evasion move.",
+   question:"Calmly repeat the exact same question. Innocent people answer; evasive people escalate.",
+   weight:-5, cap:2,
+   re:/\b(don'?t you trust me|why (are|do) you (asking|questioning)|you'?re (paranoid|crazy|overthinking)|just (drop|let) it( go)?|it doesn'?t matter (where|what|who)|stop asking)\b/gi},
+  {id:"vague", tone:"amber", label:"Fog instead of facts",
+   why:"Hedges like “some people, somewhere, at some point” avoid committing to anything that could be checked.",
+   question:"Pin one detail at a time: “Who exactly? Where exactly? What time?” Vague stories crumble on specifics.",
+   weight:-2, cap:4,
+   re:/\b(some (people|guys|friends|place)|somewhere|at some point|i think|i guess|kind of|sort of|probably|around (then|that time)|stuff happened|things (happened|got)|maybe)\b/gi},
+  {id:"distance", tone:"amber", label:"Distancing language",
+   why:"“Stuff happened / things got delayed” removes the person from their own story — ownership disappears when accounts are constructed.",
+   question:"Ask them to retell it as “I did X, then I did Y” — first person, step by step, in order.",
+   weight:-2, cap:2,
+   re:/\b(mistakes were made|it (just )?happened|things (just )?(happened|went wrong)|the money was (sent|taken|moved)|got delayed)\b/gi},
+
+  // -------- credibility builders (green) --------
+  {id:"timeanchor", tone:"green", label:"Time-anchored",
+   why:"Exact times and dates are commitments — they can be checked, and liars avoid giving them.",
+   weight:+4, cap:4,
+   re:/\b(\d{1,2}[:.]\d{2}\s?(am|pm)?|\d{1,2}\s?(am|pm)|on (monday|tuesday|wednesday|thursday|friday|saturday|sunday)|yesterday at|today at|last (night|week) at)\b/gi},
+  {id:"verifiable", tone:"green", label:"Checkable evidence offered",
+   why:"Receipts, statements, photos, named witnesses — the story invites verification instead of avoiding it.",
+   weight:+6, cap:4,
+   re:/\b(receipt|invoice|bank statement|on my statement|booking (ref(erence)?|number)|screenshot|cctv|photo (i sent|from)|you can (check|verify|call|ask)|call (him|her|them)|records?)\b/gi},
+  {id:"named", tone:"green", label:"Names real people & places",
+   why:"Named, findable people and places are verifiable anchors — fabricated stories keep characters anonymous.",
+   weight:+4, cap:3,
+   re:/\b(with [A-Z][a-z]+(?: from [a-z]+)?|at [A-Z][a-z]+ (Caf[eé]|Restaurant|Hotel|Bar|Mall|Park|Station)|the (waiter|manager|driver|receptionist),? [A-Z][a-z]+)\b/g},
+  {id:"ownership", tone:"green", label:"Owns the account",
+   why:"First-person, active, chronological telling (“I left, I took, I paid”) is how genuinely experienced events are recalled.",
+   weight:+3, cap:3,
+   re:/\b(i (left|went|took|paid|sent|met|called|kept|drove|arrived|ordered|stayed))\b/gi},
+];
+
+const AMOUNT_RE = /\b\d{1,6}\s?(rufiyaa|dollars?|usd|mvr|ringgit|rm|euros?)\b|\$\d+/gi;
+
+const SCAN_LINES = [
+  "Scanning statement structure…",
+  "Measuring checkable detail…",
+  "Detecting pressure tactics…",
+  "Weighing evasion patterns…",
+  "Building your credibility report…"
+];
+
+const $ = s => document.querySelector(s);
+
+/* ---------------- analysis (pure) ---------------- */
+function analyze(text){
+  const hits = [];
+  let score = 50;
+
+  for(const d of DETECTORS){
+    d.re.lastIndex = 0;
+    const matches = [];
+    let m;
+    while((m = d.re.exec(text)) !== null){
+      matches.push({str:m[0], index:m.index});
+      if(matches.length >= 12) break;
+    }
+    if(matches.length){
+      const counted = Math.min(matches.length, d.cap);
+      score += d.weight * counted;
+      hits.push({d, matches, counted});
+    }
+  }
+
+  AMOUNT_RE.lastIndex = 0;
+  const amts = text.match(AMOUNT_RE) || [];
+  if(amts.length){ score += Math.min(amts.length,2) * 3; }
+
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  let conf = "high", confNote = "Based on " + words + " words and " + hits.length + " signal families.";
+  if(words < 35){ conf = "low"; confNote = "Only " + words + " words so far — first impression, not a reading."; score = 50 + (score-50)*0.6; }
+  else if(words < 80){ conf = "medium"; confNote = "Moderate sample (" + words + " words). More talk sharpens the lens."; }
+
+  score = Math.max(5, Math.min(95, Math.round(score)));
+  return {score, hits, conf, confNote, words};
+}
+
+/* ---------------- shared render ---------------- */
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function highlightHTML(text, hits){
+  const spans = [];
+  hits.forEach(h => h.matches.forEach(m => spans.push({start:m.index, end:m.index+m.str.length, tone:h.d.tone})));
+  spans.sort((a,b)=>a.start-b.start);
+  const flat = [];
+  let lastEnd = -1;
+  for(const s of spans){ if(s.start >= lastEnd){ flat.push(s); lastEnd = s.end; } }
+  let html = "", pos = 0;
+  const toneClass = {red:"m-red", amber:"m-amber", green:"m-green"};
+  for(const s of flat){
+    html += esc(text.slice(pos, s.start));
+    html += '<mark class="'+toneClass[s.tone]+'">'+esc(text.slice(s.start, s.end))+'</mark>';
+    pos = s.end;
+  }
+  html += esc(text.slice(pos));
+  return html;
+}
+
+function render(r, text, opts){
+  opts = opts || {};
+  const live = !!opts.live;
+
+  // gauge
+  const C = 2 * Math.PI * 76;
+  const bar = $("#gaugeBar");
+  const color = r.score >= 65 ? "var(--green)" : r.score >= 33 ? "var(--amber)" : "var(--red)";
+  bar.style.stroke = color;
+  bar.style.strokeDasharray = C;
+  $("#gaugeNum").style.color = color;
+
+  // verdict
+  const band = $("#band"), vt = $("#verdictTitle"), vs = $("#verdictSub");
+  if(r.score >= 65){
+    band.textContent = "holds up"; band.style.background = "var(--green-soft)"; band.style.color = "var(--green)";
+    vt.textContent = "This story invites checking.";
+    vs.textContent = "It commits to specifics — times, names, evidence you could actually verify. That's how genuine accounts behave. Verify one detail to be sure.";
+  } else if(r.score >= 33){
+    band.textContent = "mixed signals"; band.style.background = "var(--amber-soft)"; band.style.color = "var(--amber)";
+    vt.textContent = "Verify before you trust it.";
+    vs.textContent = "Parts of this don't commit to anything checkable. That doesn't prove dishonesty — but don't settle it until the questions below get straight answers.";
+  } else {
+    band.textContent = "weak story"; band.style.background = "var(--red-soft)"; band.style.color = "var(--red)";
+    vt.textContent = "Do not act on this. Verify first.";
+    vs.textContent = "This leans on pressure and avoids anything checkable — the signature of manipulation. Slow everything down and verify independently before doing anything it asks.";
+  }
+  $("#confidence").textContent = "Confidence: " + r.conf + " · " + r.confNote;
+
+  // signals
+  const sw = $("#signals");
+  sw.innerHTML = "";
+  const sorted = [...r.hits].sort((a,b)=> Math.abs(b.d.weight*b.counted) - Math.abs(a.d.weight*a.counted));
+  if(!sorted.length){
+    sw.innerHTML = '<div class="signal amber" style="animation-delay:.05s"><div class="icon">·</div><div><h4>No strong patterns yet</h4><p>Nothing stands out either way so far — keep the conversation going.</p></div></div>';
+  }
+  sorted.forEach((h,i)=>{
+    const el = document.createElement("div");
+    el.className = "signal " + h.d.tone;
+    el.style.animationDelay = (live ? 0.03*i : 0.08*i + 0.1) + "s";
+    const icon = h.d.tone === "green" ? "✓" : h.d.tone === "red" ? "!" : "?";
+    const q = esc(h.matches[h.matches.length-1].str);
+    el.innerHTML = '<div class="icon">'+icon+'</div><div><h4>'+h.d.label+
+      (h.matches.length>1 ? ' <span style="font-weight:400;color:var(--ink-faint)">×'+h.matches.length+'</span>':'')+
+      '</h4><p>'+h.d.why+'</p><span class="quote">“'+q+'”</span></div>';
+    sw.appendChild(el);
+  });
+
+  // reading (paste mode only — live mode highlights the transcript itself)
+  if(live){
+    $("#readingWrap").style.display = "none";
+  } else {
+    $("#readingWrap").style.display = "block";
+    $("#reading").innerHTML = highlightHTML(text, r.hits);
+  }
+
+  // questions
+  const qs = [];
+  for(const h of sorted){ if(h.d.question && !qs.includes(h.d.question)) qs.push(h.d.question); }
+  if(r.score >= 65 && !qs.length){ qs.push("Pick ONE checkable detail (the receipt, the named person, the timestamp) and verify it. One confirmed anchor is worth more than any gut feeling."); }
+  if(!qs.length){ qs.push("Ask for one specific, checkable detail: “Who exactly, where exactly, what time?” Then verify it independently."); }
+  const qw = $("#questions");
+  qw.innerHTML = "";
+  qs.slice(0,5).forEach((q,i)=>{
+    const el = document.createElement("div");
+    el.className = "q";
+    el.style.animationDelay = (live ? 0.03*i : 0.08*i + 0.15) + "s";
+    el.innerHTML = q;
+    qw.appendChild(el);
+  });
+
+  // show + gauge animation
+  const results = $("#results");
+  const wasOn = results.classList.contains("on");
+  results.classList.add("on");
+  if(!live && !wasOn){ results.scrollIntoView({behavior:"smooth", block:"start"}); }
+
+  if(live){
+    bar.style.transition = "stroke-dashoffset .6s ease, stroke .5s";
+    bar.style.strokeDashoffset = C * (1 - r.score/100);
+    $("#gaugeNum").textContent = r.score;
+  } else {
+    bar.style.transition = "stroke-dashoffset 1.2s cubic-bezier(.3,.8,.2,1), stroke .5s";
+    bar.style.strokeDashoffset = C;
+    setTimeout(()=>{
+      bar.style.strokeDashoffset = C * (1 - r.score/100);
+      animateNum($("#gaugeNum"), r.score, 1200);
+    }, 30);
+  }
+}
+
+function animateNum(el, target, dur){
+  const t0 = performance.now();
+  function step(t){
+    const p = Math.min(1, (t-t0)/dur);
+    const eased = 1 - Math.pow(1-p, 3);
+    el.textContent = Math.round(target * eased);
+    if(p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+  setTimeout(()=>{ el.textContent = target; }, dur + 80); // lands even if frames are throttled
+}
+
+/* ---------------- tabs ---------------- */
+const tabLive = $("#tabLive"), tabPaste = $("#tabPaste");
+function showPane(which){
+  tabLive.classList.toggle("active", which === "live");
+  tabPaste.classList.toggle("active", which === "paste");
+  $("#paneLive").classList.toggle("active", which === "live");
+  $("#panePaste").classList.toggle("active", which === "paste");
+  $("#results").classList.remove("on");
+}
+tabLive.addEventListener("click", ()=>{ showPane("live"); if(liveText) renderLive(); });
+tabPaste.addEventListener("click", ()=>{ showPane("paste"); stopListening(); });
+
+/* ---------------- paste mode ---------------- */
+const input = $("#input");
+document.querySelectorAll(".chip").forEach(c=>{
+  c.addEventListener("click",()=>{ input.value = DEMOS[c.dataset.demo]; input.focus(); });
+});
+$("#clear").addEventListener("click",()=>{ input.value=""; $("#results").classList.remove("on"); input.focus(); });
+$("#go").addEventListener("click",()=>{
+  const text = input.value.trim();
+  if(text.length < 15){ input.focus(); input.placeholder="Paste at least a sentence or two first…"; return; }
+  const scanner = $("#scanner");
+  $("#results").classList.remove("on");
+  scanner.classList.add("on");
+  $("#go").disabled = true;
+  let i = 0;
+  $("#scanText").textContent = SCAN_LINES[0];
+  const tick = setInterval(()=>{ i++; if(i < SCAN_LINES.length){ $("#scanText").textContent = SCAN_LINES[i]; } }, 380);
+  setTimeout(()=>{
+    clearInterval(tick);
+    scanner.classList.remove("on");
+    $("#go").disabled = false;
+    render(analyze(text), text);
+  }, 380 * SCAN_LINES.length + 200);
+});
+
+/* ---------------- live mode ---------------- */
+let recognition = null;
+let listening = false;
+let liveText = "";       // accumulated final transcript
+let interimText = "";
+
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+function setStatus(){
+  const st = $("#liveStatus");
+  if(listening){
+    st.innerHTML = '<span class="dot"></span>Listening… let them talk';
+    st.classList.add("listening-status");
+    $("#liveStage").classList.add("listening");
+  } else {
+    st.innerHTML = '<span class="dot"></span>' + (liveText ? "Paused — tap to resume" : "Tap to start listening");
+    st.classList.remove("listening-status");
+    $("#liveStage").classList.remove("listening");
+  }
+}
+
+function updateTranscript(){
+  const t = $("#transcript");
+  if(!liveText && !interimText){
+    t.innerHTML = '<span class="placeholder">The conversation will appear here as they speak…</span>';
+    return;
+  }
+  const r = analyze(liveText);
+  t.innerHTML = highlightHTML(liveText, r.hits) + (interimText ? ' <span class="interim">'+esc(interimText)+'</span>' : '');
+  t.parentElement.scrollTop = t.parentElement.scrollHeight;
+}
+
+function renderLive(){
+  if(!liveText) return;
+  render(analyze(liveText), liveText, {live:true});
+}
+
+/* exposed for testing + future integrations (e.g. call audio, Whisper) */
+function liveIngest(finalChunk){
+  liveText = (liveText + " " + finalChunk).trim();
+  interimText = "";
+  updateTranscript();
+  renderLive();
+}
+window.liveIngest = liveIngest;
+
+function startListening(){
+  if(!SR){
+    const ns = $("#noSpeech");
+    ns.style.display = "block";
+    ns.textContent = "Live listening needs Chrome (or Edge) — this browser doesn't support speech recognition. The Paste tab works everywhere.";
+    return;
+  }
+  recognition = new SR();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = "en-US";
+  recognition.onresult = (e)=>{
+    let interim = "";
+    for(let i = e.resultIndex; i < e.results.length; i++){
+      const res = e.results[i];
+      if(res.isFinal){ liveIngest(res[0].transcript.trim()); }
+      else { interim += res[0].transcript; }
+    }
+    if(interim){ interimText = interim; updateTranscript(); }
+  };
+  recognition.onerror = (e)=>{
+    if(e.error === "not-allowed" || e.error === "service-not-allowed"){
+      listening = false;
+      const ns = $("#noSpeech");
+      ns.style.display = "block";
+      ns.textContent = "Microphone blocked. Allow mic access for this site (click the icon in the address bar), then tap the mic again.";
+      setStatus();
+    }
+  };
+  recognition.onend = ()=>{ if(listening){ try{ recognition.start(); }catch(_){} } };
+  try{ recognition.start(); listening = true; }catch(_){ listening = false; }
+  $("#noSpeech").style.display = "none";
+  setStatus();
+}
+
+function stopListening(){
+  listening = false;
+  if(recognition){ try{ recognition.stop(); }catch(_){} }
+  setStatus();
+}
+
+$("#micBtn").addEventListener("click", ()=>{ listening ? stopListening() : startListening(); });
+$("#resetLive").addEventListener("click", ()=>{
+  liveText = ""; interimText = "";
+  $("#results").classList.remove("on");
+  updateTranscript();
+  setStatus();
+});
+
+setStatus();
+</script>
+</body>
+</html>
