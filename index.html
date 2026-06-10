@@ -3,27 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>TruthLens — Live Lie Detector for Conversations</title>
-<meta name="description" content="TruthLens listens to the conversation and flags in real time when the story doesn't hold up — and tells you exactly what to ask next.">
+<title>Scam Shield — Check before you trust. Know before you send.</title>
+<meta name="description" content="Paste any suspicious message, profile, or 'investment' and know in seconds if it's safe — before you reply or send money.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#06090f;
-    --panel:rgba(255,255,255,.035);
-    --panel-edge:rgba(255,255,255,.08);
-    --ink:#e8eef6;
-    --ink-dim:#93a1b5;
-    --ink-faint:#5c6b80;
-    --lens:#37e6c0;
-    --lens-soft:rgba(55,230,192,.14);
-    --red:#ff5d73;
-    --red-soft:rgba(255,93,115,.12);
-    --amber:#ffc14d;
-    --amber-soft:rgba(255,193,77,.12);
-    --green:#41e08b;
-    --green-soft:rgba(65,224,139,.12);
+    --bg:#080c16;
+    --bg-soft:#0c1220;
+    --panel:rgba(255,255,255,.04);
+    --panel-edge:rgba(255,255,255,.09);
+    --ink:#eef3fb;
+    --ink-dim:#9fb0c8;
+    --ink-faint:#647693;
+    --brand:#43b6ff;
+    --brand-soft:rgba(67,182,255,.14);
+    --danger:#ff5167;
+    --danger-soft:rgba(255,81,103,.13);
+    --caution:#ffb23d;
+    --caution-soft:rgba(255,178,61,.13);
+    --safe:#36df8b;
+    --safe-soft:rgba(54,223,139,.13);
     --font-display:"Space Grotesk",system-ui,sans-serif;
     --font-body:"Inter",system-ui,sans-serif;
     --radius:18px;
@@ -31,214 +32,155 @@
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
   body{
-    background:var(--bg);
-    color:var(--ink);
-    font-family:var(--font-body);
-    font-size:16px;
-    line-height:1.6;
-    min-height:100vh;
-    overflow-x:hidden;
-    -webkit-font-smoothing:antialiased;
+    background:var(--bg);color:var(--ink);font-family:var(--font-body);
+    font-size:17px;line-height:1.6;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;
   }
-  .aurora{
-    position:fixed;inset:0;z-index:0;pointer-events:none;
+  .aurora{position:fixed;inset:0;z-index:0;pointer-events:none;
     background:
-      radial-gradient(60vw 40vh at 75% -10%, rgba(55,230,192,.10), transparent 60%),
-      radial-gradient(50vw 40vh at 10% 110%, rgba(70,120,255,.08), transparent 60%);
-    animation:breathe 9s ease-in-out infinite alternate;
-  }
-  @keyframes breathe{from{opacity:.7}to{opacity:1}}
-  .grain{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.05;
+      radial-gradient(60vw 42vh at 78% -12%, rgba(67,182,255,.12), transparent 60%),
+      radial-gradient(52vw 40vh at 6% 112%, rgba(54,223,139,.07), transparent 60%);
+    animation:breathe 9s ease-in-out infinite alternate;}
+  @keyframes breathe{from{opacity:.65}to{opacity:1}}
+  .grain{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.045;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");}
 
-  .wrap{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:0 20px 90px}
+  .wrap{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:0 20px 90px}
 
   nav{display:flex;align-items:center;gap:12px;padding:22px 0 8px}
-  .logo{display:flex;align-items:center;gap:11px;font-family:var(--font-display);font-weight:700;font-size:1.25rem;letter-spacing:.2px}
-  .lens-mark{width:30px;height:30px;border-radius:50%;position:relative;flex:0 0 auto;
-    background:radial-gradient(circle at 35% 35%, rgba(55,230,192,.9), rgba(55,230,192,.12) 55%, transparent 70%);
-    box-shadow:0 0 18px rgba(55,230,192,.45), inset 0 0 0 1.5px rgba(55,230,192,.8);}
-  .lens-mark::after{content:"";position:absolute;right:-5px;bottom:-5px;width:11px;height:3px;border-radius:2px;background:var(--lens);transform:rotate(45deg);box-shadow:0 0 8px rgba(55,230,192,.6)}
+  .logo{display:flex;align-items:center;gap:11px;font-family:var(--font-display);font-weight:700;font-size:1.3rem;letter-spacing:.2px}
+  .shield{width:30px;height:34px;flex:0 0 auto;filter:drop-shadow(0 0 12px rgba(67,182,255,.5))}
   .nav-tag{margin-left:auto;font-size:.72rem;color:var(--ink-faint);border:1px solid var(--panel-edge);border-radius:99px;padding:5px 12px;letter-spacing:.6px;text-transform:uppercase}
 
-  header{padding:44px 0 30px;text-align:left}
-  h1{font-family:var(--font-display);font-size:clamp(2rem,6vw,3.2rem);line-height:1.08;font-weight:700;letter-spacing:-.5px}
-  h1 .glow{color:var(--lens);text-shadow:0 0 28px rgba(55,230,192,.4)}
-  .sub{margin-top:16px;color:var(--ink-dim);font-size:clamp(.96rem,2.6vw,1.1rem);max-width:600px}
+  header{padding:40px 0 28px}
+  h1{font-family:var(--font-display);font-size:clamp(2rem,5.6vw,3.1rem);line-height:1.1;font-weight:700;letter-spacing:-.5px}
+  h1 .glow{color:var(--brand);text-shadow:0 0 28px rgba(67,182,255,.4)}
+  .sub{margin-top:15px;color:var(--ink-dim);font-size:clamp(1rem,2.6vw,1.14rem);max-width:600px}
   .sub b{color:var(--ink);font-weight:600}
 
-  .card{
-    background:var(--panel);
-    border:1px solid var(--panel-edge);
-    border-radius:var(--radius);
-    backdrop-filter:blur(14px);
-    padding:22px;
-  }
-  .main-card{margin-top:8px;box-shadow:0 24px 60px -30px rgba(0,0,0,.8)}
+  .card{background:var(--panel);border:1px solid var(--panel-edge);border-radius:var(--radius);backdrop-filter:blur(14px);padding:22px}
+  .main-card{margin-top:8px;box-shadow:0 24px 60px -30px rgba(0,0,0,.85)}
 
-  /* tabs */
   .tabs{display:flex;gap:8px;margin-bottom:18px}
-  .tab{
-    flex:1;font-family:var(--font-display);font-weight:600;font-size:.92rem;
-    background:rgba(255,255,255,.04);border:1px solid var(--panel-edge);color:var(--ink-dim);
-    border-radius:12px;padding:12px 10px;cursor:pointer;transition:all .2s;min-height:46px;
-  }
-  .tab.active{color:#04261e;background:linear-gradient(135deg,#3ff0c8,#19b894);border-color:transparent;box-shadow:0 8px 24px -8px rgba(55,230,192,.5)}
+  .tab{flex:1;font-family:var(--font-display);font-weight:600;font-size:.95rem;background:rgba(255,255,255,.04);border:1px solid var(--panel-edge);color:var(--ink-dim);border-radius:12px;padding:13px 10px;cursor:pointer;transition:all .2s;min-height:48px}
+  .tab.active{color:#04243a;background:linear-gradient(135deg,#5cc4ff,#2b97e6);border-color:transparent;box-shadow:0 8px 24px -8px rgba(67,182,255,.5)}
   .pane{display:none}
   .pane.active{display:block}
 
-  /* LIVE pane */
-  .live-stage{text-align:center;padding:8px 0 4px}
-  .mic-wrap{position:relative;width:120px;height:120px;margin:10px auto 6px}
-  .mic-ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(55,230,192,.25)}
-  .listening .mic-ring{animation:pulse 1.6s ease-out infinite}
-  .listening .mic-ring.r2{animation-delay:.5s}
-  .listening .mic-ring.r3{animation-delay:1s}
-  @keyframes pulse{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.65);opacity:0}}
-  .mic-btn{
-    position:absolute;inset:14px;border-radius:50%;border:none;cursor:pointer;
-    background:linear-gradient(135deg,#3ff0c8,#19b894);
-    box-shadow:0 14px 40px -10px rgba(55,230,192,.65);
-    display:flex;align-items:center;justify-content:center;
-    transition:transform .15s, filter .2s;
-  }
-  .mic-btn:hover{transform:scale(1.05)}
-  .mic-btn svg{width:34px;height:34px;fill:#04261e}
-  .listening .mic-btn{background:linear-gradient(135deg,#ff7285,#e03a52);box-shadow:0 14px 40px -10px rgba(255,93,115,.6)}
-  .listening .mic-btn svg{fill:#2b0810}
-  .live-status{font-family:var(--font-display);font-weight:600;font-size:1rem;margin-top:6px}
-  .live-status .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ink-faint);margin-right:8px;vertical-align:1px}
-  .listening-status .dot{background:var(--red);box-shadow:0 0 10px var(--red);animation:blink 1.1s infinite}
-  @keyframes blink{50%{opacity:.3}}
-  .live-hint{color:var(--ink-faint);font-size:.84rem;margin-top:6px}
-  .live-controls{display:flex;justify-content:center;gap:14px;margin-top:14px}
-  .ghost-btn{background:none;border:1px solid var(--panel-edge);border-radius:10px;color:var(--ink-dim);font-size:.84rem;padding:9px 16px;cursor:pointer;min-height:40px}
-  .ghost-btn:hover{color:var(--ink);border-color:rgba(255,255,255,.2)}
-
-  .transcript-card{margin-top:18px;text-align:left;background:rgba(0,0,0,.28);border:1px solid var(--panel-edge);border-radius:12px;padding:16px;min-height:96px;max-height:280px;overflow-y:auto}
-  .transcript-label{font-size:.7rem;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px}
-  .transcript{font-size:.96rem;line-height:1.9;color:var(--ink-dim);white-space:pre-wrap}
-  .transcript .interim{opacity:.45;font-style:italic}
-  .transcript .placeholder{color:var(--ink-faint);font-style:italic}
-  .no-speech{display:none;margin-top:12px;font-size:.85rem;color:var(--amber);background:var(--amber-soft);border:1px solid rgba(255,193,77,.3);border-radius:10px;padding:10px 14px;text-align:left}
-
-  /* PASTE pane */
-  textarea{
-    width:100%;min-height:160px;resize:vertical;
-    background:rgba(0,0,0,.28);
-    border:1px solid var(--panel-edge);
-    border-radius:12px;
-    color:var(--ink);font-family:var(--font-body);font-size:.98rem;line-height:1.65;
-    padding:16px;outline:none;transition:border-color .25s, box-shadow .25s;
-  }
-  textarea:focus{border-color:rgba(55,230,192,.55);box-shadow:0 0 0 3px rgba(55,230,192,.12)}
+  .field-label{font-size:.92rem;color:var(--ink-dim);margin-bottom:9px;font-weight:500}
+  textarea{width:100%;min-height:168px;resize:vertical;background:rgba(0,0,0,.3);border:1px solid var(--panel-edge);border-radius:12px;color:var(--ink);font-family:var(--font-body);font-size:1.02rem;line-height:1.65;padding:16px;outline:none;transition:border-color .25s, box-shadow .25s}
+  textarea:focus{border-color:rgba(67,182,255,.55);box-shadow:0 0 0 3px rgba(67,182,255,.12)}
   textarea::placeholder{color:var(--ink-faint)}
   .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-  .chip{
-    font-size:.8rem;color:var(--ink-dim);
-    background:rgba(255,255,255,.04);border:1px solid var(--panel-edge);
-    border-radius:99px;padding:7px 14px;cursor:pointer;transition:all .2s;min-height:34px;
-  }
-  .chip:hover{color:var(--lens);border-color:rgba(55,230,192,.5);background:var(--lens-soft)}
+  .chip{font-size:.82rem;color:var(--ink-dim);background:rgba(255,255,255,.04);border:1px solid var(--panel-edge);border-radius:99px;padding:8px 14px;cursor:pointer;transition:all .2s;min-height:36px}
+  .chip:hover{color:var(--brand);border-color:rgba(67,182,255,.5);background:var(--brand-soft)}
   .actions{display:flex;align-items:center;gap:14px;margin-top:16px;flex-wrap:wrap}
-  .analyze-btn{
-    font-family:var(--font-display);font-weight:600;font-size:1rem;letter-spacing:.3px;
-    color:#04261e;background:linear-gradient(135deg,#3ff0c8,#19b894);
-    border:none;border-radius:12px;padding:14px 30px;cursor:pointer;min-height:48px;
-    box-shadow:0 10px 30px -8px rgba(55,230,192,.55);
-    transition:transform .15s, box-shadow .15s, filter .2s;
-  }
-  .analyze-btn:hover{transform:translateY(-2px)}
-  .analyze-btn:disabled{filter:saturate(.3) brightness(.7);cursor:wait;transform:none}
-  .clear-btn{background:none;border:none;color:var(--ink-faint);font-size:.85rem;cursor:pointer;min-height:44px;padding:0 6px}
+  .check-btn{font-family:var(--font-display);font-weight:600;font-size:1.05rem;letter-spacing:.3px;color:#04243a;background:linear-gradient(135deg,#5cc4ff,#2b97e6);border:none;border-radius:12px;padding:15px 32px;cursor:pointer;min-height:52px;box-shadow:0 10px 30px -8px rgba(67,182,255,.55);transition:transform .15s, box-shadow .15s, filter .2s}
+  .check-btn:hover{transform:translateY(-2px)}
+  .check-btn:disabled{filter:saturate(.3) brightness(.7);cursor:wait;transform:none}
+  .clear-btn{background:none;border:none;color:var(--ink-faint);font-size:.88rem;cursor:pointer;min-height:44px;padding:0 6px}
   .clear-btn:hover{color:var(--ink-dim)}
+
+  /* live */
+  .live-stage{text-align:center;padding:6px 0 2px}
+  .mic-wrap{position:relative;width:118px;height:118px;margin:8px auto 4px}
+  .mic-ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(67,182,255,.25)}
+  .listening .mic-ring{animation:pulse 1.6s ease-out infinite}
+  .listening .mic-ring.r2{animation-delay:.5s}.listening .mic-ring.r3{animation-delay:1s}
+  @keyframes pulse{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.6);opacity:0}}
+  .mic-btn{position:absolute;inset:14px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(135deg,#5cc4ff,#2b97e6);box-shadow:0 14px 40px -10px rgba(67,182,255,.65);display:flex;align-items:center;justify-content:center;transition:transform .15s}
+  .mic-btn:hover{transform:scale(1.05)}
+  .mic-btn svg{width:34px;height:34px;fill:#04243a}
+  .listening .mic-btn{background:linear-gradient(135deg,#ff7285,#e03a52)}
+  .listening .mic-btn svg{fill:#2b0810}
+  .live-status{font-family:var(--font-display);font-weight:600;font-size:1.02rem;margin-top:4px}
+  .live-status .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ink-faint);margin-right:8px;vertical-align:1px}
+  .listening-status .dot{background:var(--danger);box-shadow:0 0 10px var(--danger);animation:blink 1.1s infinite}
+  @keyframes blink{50%{opacity:.3}}
+  .live-hint{color:var(--ink-faint);font-size:.85rem;margin-top:6px}
+  .live-controls{display:flex;justify-content:center;gap:14px;margin-top:12px}
+  .ghost-btn{background:none;border:1px solid var(--panel-edge);border-radius:10px;color:var(--ink-dim);font-size:.85rem;padding:9px 16px;cursor:pointer;min-height:40px}
+  .ghost-btn:hover{color:var(--ink);border-color:rgba(255,255,255,.2)}
+  .transcript-card{margin-top:16px;text-align:left;background:rgba(0,0,0,.3);border:1px solid var(--panel-edge);border-radius:12px;padding:16px;min-height:90px;max-height:260px;overflow-y:auto}
+  .transcript-label{font-size:.7rem;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px}
+  .transcript{font-size:1rem;line-height:1.9;color:var(--ink-dim);white-space:pre-wrap}
+  .transcript .interim{opacity:.45;font-style:italic}
+  .transcript .placeholder{color:var(--ink-faint);font-style:italic}
+  .no-speech{display:none;margin-top:12px;font-size:.88rem;color:var(--caution);background:var(--caution-soft);border:1px solid rgba(255,178,61,.3);border-radius:10px;padding:10px 14px;text-align:left}
 
   .scanner{display:none;margin-top:26px;text-align:center;padding:30px 10px}
   .scanner.on{display:block}
-  .scan-ring{
-    width:74px;height:74px;border-radius:50%;margin:0 auto 18px;position:relative;
-    border:2px solid rgba(55,230,192,.18);
-  }
-  .scan-ring::before{content:"";position:absolute;inset:-2px;border-radius:50%;
-    border:2px solid transparent;border-top-color:var(--lens);
-    animation:spin 1s linear infinite;filter:drop-shadow(0 0 8px rgba(55,230,192,.7))}
+  .scan-ring{width:72px;height:72px;border-radius:50%;margin:0 auto 18px;position:relative;border:2px solid rgba(67,182,255,.18)}
+  .scan-ring::before{content:"";position:absolute;inset:-2px;border-radius:50%;border:2px solid transparent;border-top-color:var(--brand);animation:spin 1s linear infinite;filter:drop-shadow(0 0 8px rgba(67,182,255,.7))}
   @keyframes spin{to{transform:rotate(360deg)}}
-  .scan-text{color:var(--ink-dim);font-size:.92rem;min-height:1.5em}
+  .scan-text{color:var(--ink-dim);font-size:.95rem;min-height:1.5em}
 
-  /* results */
-  #results{display:none;margin-top:30px}
-  #results.on{display:block;animation:rise .6s cubic-bezier(.2,.8,.2,1)}
-  @keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
-  .verdict-card{display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+  /* result */
+  #results{display:none;margin-top:26px}
+  #results.on{display:block;animation:rise .55s cubic-bezier(.2,.8,.2,1)}
+  @keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
 
-  .gauge{position:relative;width:172px;height:172px;flex:0 0 auto;margin:0 auto}
-  .gauge svg{transform:rotate(-90deg)}
-  .gauge .track{fill:none;stroke:rgba(255,255,255,.07);stroke-width:11}
-  .gauge .bar{fill:none;stroke-width:11;stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(.3,.8,.2,1), stroke .5s}
-  .gauge-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-  .gauge-num{font-family:var(--font-display);font-size:2.6rem;font-weight:700;line-height:1}
-  .gauge-label{font-size:.68rem;letter-spacing:1.4px;text-transform:uppercase;color:var(--ink-faint);margin-top:5px}
-  .verdict-text{flex:1;min-width:240px}
-  .verdict-band{display:inline-block;font-family:var(--font-display);font-weight:600;font-size:.8rem;letter-spacing:.8px;text-transform:uppercase;border-radius:99px;padding:6px 14px;margin-bottom:10px}
-  .verdict-title{font-family:var(--font-display);font-size:1.5rem;font-weight:700;margin-bottom:8px}
-  .verdict-sub{color:var(--ink-dim);font-size:.95rem}
-  .confidence{margin-top:10px;font-size:.8rem;color:var(--ink-faint)}
+  .verdict{border-radius:var(--radius);padding:26px 24px;border:1px solid;position:relative;overflow:hidden}
+  .verdict.danger{background:var(--danger-soft);border-color:rgba(255,81,103,.4)}
+  .verdict.caution{background:var(--caution-soft);border-color:rgba(255,178,61,.4)}
+  .verdict.safe{background:var(--safe-soft);border-color:rgba(54,223,139,.4)}
+  .verdict-top{display:flex;align-items:center;gap:18px}
+  .vbadge{width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:2rem}
+  .verdict.danger .vbadge{background:rgba(255,81,103,.18);color:var(--danger)}
+  .verdict.caution .vbadge{background:rgba(255,178,61,.18);color:var(--caution)}
+  .verdict.safe .vbadge{background:rgba(54,223,139,.18);color:var(--safe)}
+  .vhead{flex:1;min-width:0}
+  .vtitle{font-family:var(--font-display);font-size:1.6rem;font-weight:700;line-height:1.15}
+  .verdict.danger .vtitle{color:#ff8593}.verdict.caution .vtitle{color:#ffc56b}.verdict.safe .vtitle{color:#62e6a5}
+  .vtype{font-size:.95rem;color:var(--ink-dim);margin-top:4px}
+  .vmeter{height:9px;border-radius:99px;background:rgba(255,255,255,.08);margin-top:18px;overflow:hidden}
+  .vmeter-fill{height:100%;border-radius:99px;width:0;transition:width 1.1s cubic-bezier(.3,.8,.2,1)}
+  .verdict.danger .vmeter-fill{background:linear-gradient(90deg,#ff7285,#ff5167)}
+  .verdict.caution .vmeter-fill{background:linear-gradient(90deg,#ffce7a,#ffb23d)}
+  .verdict.safe .vmeter-fill{background:linear-gradient(90deg,#5fe6a3,#36df8b)}
+  .vmeter-label{display:flex;justify-content:space-between;font-size:.74rem;color:var(--ink-faint);margin-top:7px;letter-spacing:.4px}
 
-  .sec-title{font-family:var(--font-display);font-weight:600;font-size:1.05rem;margin:34px 0 14px;display:flex;align-items:center;gap:10px}
-  .sec-title .dot{width:8px;height:8px;border-radius:50%;background:var(--lens);box-shadow:0 0 10px rgba(55,230,192,.8)}
+  .sec-title{font-family:var(--font-display);font-weight:600;font-size:1.08rem;margin:30px 0 14px;display:flex;align-items:center;gap:10px}
+  .sec-title .dot{width:8px;height:8px;border-radius:50%;background:var(--brand);box-shadow:0 0 10px rgba(67,182,255,.8)}
 
-  .signals{display:grid;grid-template-columns:1fr;gap:10px}
-  .signal{
-    display:flex;gap:14px;align-items:flex-start;
-    background:var(--panel);border:1px solid var(--panel-edge);border-radius:14px;padding:14px 16px;
-    opacity:0;transform:translateY(12px);animation:rise .5s forwards;
-  }
-  .signal .icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex:0 0 auto;font-weight:700}
-  .signal.red .icon{background:var(--red-soft);color:var(--red)}
-  .signal.amber .icon{background:var(--amber-soft);color:var(--amber)}
-  .signal.green .icon{background:var(--green-soft);color:var(--green)}
-  .signal h4{font-size:.95rem;font-weight:600;margin-bottom:3px}
-  .signal p{font-size:.86rem;color:var(--ink-dim)}
-  .signal .quote{display:inline-block;margin-top:6px;font-size:.82rem;color:var(--ink);background:rgba(255,255,255,.05);border-left:2px solid currentColor;border-radius:0 8px 8px 0;padding:4px 10px;font-style:italic}
-  .signal.red .quote{border-color:var(--red)}
-  .signal.amber .quote{border-color:var(--amber)}
-  .signal.green .quote{border-color:var(--green)}
+  .flags{display:grid;grid-template-columns:1fr;gap:10px}
+  .flag{display:flex;gap:14px;align-items:flex-start;background:var(--panel);border:1px solid var(--panel-edge);border-radius:14px;padding:14px 16px;opacity:0;transform:translateY(12px);animation:rise .5s forwards}
+  .flag .icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex:0 0 auto;font-weight:700}
+  .flag.danger .icon{background:var(--danger-soft);color:var(--danger)}
+  .flag.caution .icon{background:var(--caution-soft);color:var(--caution)}
+  .flag.safe .icon{background:var(--safe-soft);color:var(--safe)}
+  .flag h4{font-size:.98rem;font-weight:600;margin-bottom:3px}
+  .flag p{font-size:.88rem;color:var(--ink-dim)}
+  .flag .quote{display:inline-block;margin-top:6px;font-size:.84rem;color:var(--ink);background:rgba(255,255,255,.05);border-left:2px solid currentColor;border-radius:0 8px 8px 0;padding:4px 10px;font-style:italic}
+  .flag.danger .quote{border-color:var(--danger)}.flag.caution .quote{border-color:var(--caution)}.flag.safe .quote{border-color:var(--safe)}
 
   .reading-wrap{display:none}
-  .reading{font-size:.97rem;line-height:1.9;color:var(--ink-dim);white-space:pre-wrap}
+  .reading{font-size:1rem;line-height:1.95;color:var(--ink-dim);white-space:pre-wrap}
   mark{border-radius:5px;padding:1px 5px;color:var(--ink);background:transparent}
-  mark.m-red{background:var(--red-soft);box-shadow:inset 0 -1.5px 0 var(--red)}
-  mark.m-amber{background:var(--amber-soft);box-shadow:inset 0 -1.5px 0 var(--amber)}
-  mark.m-green{background:var(--green-soft);box-shadow:inset 0 -1.5px 0 var(--green)}
+  mark.m-danger{background:var(--danger-soft);box-shadow:inset 0 -1.5px 0 var(--danger)}
+  mark.m-caution{background:var(--caution-soft);box-shadow:inset 0 -1.5px 0 var(--caution)}
+  mark.m-safe{background:var(--safe-soft);box-shadow:inset 0 -1.5px 0 var(--safe)}
 
-  .q-list{display:flex;flex-direction:column;gap:10px;counter-reset:q}
-  .q{
-    background:linear-gradient(135deg, rgba(55,230,192,.07), rgba(55,230,192,.02));
-    border:1px solid rgba(55,230,192,.2);border-radius:14px;padding:14px 16px 14px 52px;position:relative;
-    font-size:.93rem;opacity:0;transform:translateY(12px);animation:rise .5s forwards;
-  }
-  .q::before{
-    counter-increment:q;content:counter(q);
-    position:absolute;left:14px;top:13px;width:26px;height:26px;border-radius:8px;
-    background:var(--lens-soft);color:var(--lens);font-family:var(--font-display);font-weight:700;font-size:.85rem;
-    display:flex;align-items:center;justify-content:center;
-  }
+  .do-list{display:flex;flex-direction:column;gap:10px}
+  .do{display:flex;gap:13px;align-items:flex-start;border-radius:14px;padding:14px 16px;font-size:.96rem;opacity:0;transform:translateY(12px);animation:rise .5s forwards;border:1px solid}
+  .do.dont{background:var(--danger-soft);border-color:rgba(255,81,103,.25)}
+  .do.dods{background:var(--safe-soft);border-color:rgba(54,223,139,.22)}
+  .do .di{flex:0 0 auto;font-weight:700;font-size:1.05rem;line-height:1.4}
+  .do.dont .di{color:var(--danger)}.do.dods .di{color:var(--safe)}
+  .do b{color:var(--ink);font-weight:600}
 
-  .honesty{
-    margin-top:36px;padding:16px 18px;border-radius:14px;font-size:.82rem;color:var(--ink-faint);
-    border:1px dashed rgba(255,255,255,.14);
-  }
+  .honesty{margin-top:32px;padding:16px 18px;border-radius:14px;font-size:.84rem;color:var(--ink-faint);border:1px dashed rgba(255,255,255,.14)}
   .honesty b{color:var(--ink-dim)}
-  footer{margin-top:70px;padding-top:26px;border-top:1px solid var(--panel-edge);color:var(--ink-faint);font-size:.8rem;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  footer{margin-top:60px;padding-top:24px;border-top:1px solid var(--panel-edge);color:var(--ink-faint);font-size:.82rem;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 
   @media (max-width:520px){
-    header{padding:32px 0 22px}
+    body{font-size:16px}
+    header{padding:28px 0 20px}
     .card{padding:16px}
-    .verdict-card{gap:16px}
-    .verdict-text{text-align:center}
-    .verdict-title{font-size:1.3rem}
-    .analyze-btn{width:100%}
-    .transcript-card{max-height:220px}
+    .verdict{padding:20px 16px}
+    .vbadge{width:54px;height:54px;font-size:1.7rem;border-radius:15px}
+    .vtitle{font-size:1.35rem}
+    .check-btn{width:100%}
+    .tab{font-size:.86rem;padding:12px 6px}
   }
 </style>
 </head>
@@ -247,493 +189,418 @@
 <div class="wrap">
 
   <nav>
-    <div class="logo"><span class="lens-mark"></span>TruthLens</div>
+    <div class="logo">
+      <svg class="shield" viewBox="0 0 30 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15 1 27 5.5V16c0 8.4-5.4 13.6-12 16.8C8.4 29.6 3 24.4 3 16V5.5L15 1Z" fill="rgba(67,182,255,.16)" stroke="#43b6ff" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M9.5 16.5 13.5 20.5 21 12" stroke="#43b6ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Scam Shield
+    </div>
     <span class="nav-tag">v1 preview</span>
   </nav>
 
   <header>
-    <h1>Catch the lie<br><span class="glow">while they're talking.</span></h1>
-    <p class="sub">Put your phone on the table. TruthLens <b>listens to the conversation live</b>, watches the story for cracks — contradictions, dodged questions, fog, pressure — and quietly hands you <b>the exact question to ask next</b>.</p>
+    <h1>Check before you trust.<br><span class="glow">Know before you send.</span></h1>
+    <p class="sub">Got a message, a profile, an "investment", or a call that feels off? Paste it — or let Scam Shield <b>listen live</b> — and in seconds you'll know <b>if it's a scam</b>, what kind, and exactly <b>what to do next</b>.</p>
   </header>
 
   <div class="card main-card">
     <div class="tabs">
-      <button class="tab active" id="tabLive">🎙 Live conversation</button>
-      <button class="tab" id="tabPaste">✍ Paste a message</button>
+      <button class="tab active" id="tabPaste">📋 Check a message</button>
+      <button class="tab" id="tabLive">🎙 Listen to a call</button>
+    </div>
+
+    <!-- PASTE -->
+    <div class="pane active" id="panePaste">
+      <div class="field-label">Paste the message, chat, profile bio, or "investment" pitch you're unsure about:</div>
+      <textarea id="input" placeholder="Paste anything suspicious here…&#10;&#10;A text from an unknown number, a message from someone you met online, a 'you've won' email, an investment offer, a bank alert — anything that gave you a bad feeling." spellcheck="false"></textarea>
+      <div class="chips">
+        <button class="chip" data-demo="romance">Try: online lover</button>
+        <button class="chip" data-demo="invest">Try: crypto "investment"</button>
+        <button class="chip" data-demo="bank">Try: bank alert</button>
+        <button class="chip" data-demo="safe">Try: a real message</button>
+      </div>
+      <div class="actions">
+        <button class="check-btn" id="go">Check it now</button>
+        <button class="clear-btn" id="clear">Clear</button>
+      </div>
     </div>
 
     <!-- LIVE -->
-    <div class="pane active" id="paneLive">
+    <div class="pane" id="paneLive">
       <div class="live-stage" id="liveStage">
         <div class="mic-wrap">
-          <div class="mic-ring"></div>
-          <div class="mic-ring r2"></div>
-          <div class="mic-ring r3"></div>
+          <div class="mic-ring"></div><div class="mic-ring r2"></div><div class="mic-ring r3"></div>
           <button class="mic-btn" id="micBtn" aria-label="Start listening">
             <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
           </button>
         </div>
-        <div class="live-status" id="liveStatus"><span class="dot"></span>Tap to start listening</div>
-        <div class="live-hint" id="liveHint">Works best in Chrome · nothing is recorded or stored</div>
-        <div class="live-controls">
-          <button class="ghost-btn" id="resetLive">Reset session</button>
-        </div>
+        <div class="live-status" id="liveStatus"><span class="dot"></span>Tap to listen to a call or conversation</div>
+        <div class="live-hint" id="liveHint">Put it on speaker · works best in Chrome · nothing is recorded or stored</div>
+        <div class="live-controls"><button class="ghost-btn" id="resetLive">Reset</button></div>
         <div class="no-speech" id="noSpeech"></div>
       </div>
       <div class="transcript-card">
-        <div class="transcript-label">Live transcript · suspicious lines light up</div>
-        <div class="transcript" id="transcript"><span class="placeholder">The conversation will appear here as they speak…</span></div>
-      </div>
-    </div>
-
-    <!-- PASTE -->
-    <div class="pane" id="panePaste">
-      <textarea id="input" placeholder="Paste the message, excuse, story, or statement you're not sure about…&#10;&#10;A text from a stranger, a deal that sounds too good, an excuse that feels off — anything." spellcheck="false"></textarea>
-      <div class="chips">
-        <button class="chip" data-demo="scam">Try: suspicious message</button>
-        <button class="chip" data-demo="excuse">Try: vague excuse</button>
-        <button class="chip" data-demo="solid">Try: solid story</button>
-      </div>
-      <div class="actions">
-        <button class="analyze-btn" id="go">Analyze it</button>
-        <button class="clear-btn" id="clear">Clear</button>
+        <div class="transcript-label">Live transcript · scam wording lights up red</div>
+        <div class="transcript" id="transcript"><span class="placeholder">What's said will appear here as you listen…</span></div>
       </div>
     </div>
   </div>
 
   <div class="scanner" id="scanner">
     <div class="scan-ring"></div>
-    <div class="scan-text" id="scanText">Scanning statement structure…</div>
+    <div class="scan-text" id="scanText">Reading the message…</div>
   </div>
 
   <div id="results">
-    <div class="card verdict-card">
-      <div class="gauge">
-        <svg width="172" height="172" viewBox="0 0 172 172">
-          <circle class="track" cx="86" cy="86" r="76"></circle>
-          <circle class="bar" id="gaugeBar" cx="86" cy="86" r="76"></circle>
-        </svg>
-        <div class="gauge-center">
-          <div class="gauge-num" id="gaugeNum">0</div>
-          <div class="gauge-label">credibility</div>
+    <div class="verdict" id="verdict">
+      <div class="verdict-top">
+        <div class="vbadge" id="vbadge">⛔</div>
+        <div class="vhead">
+          <div class="vtitle" id="vtitle"></div>
+          <div class="vtype" id="vtype"></div>
         </div>
       </div>
-      <div class="verdict-text">
-        <span class="verdict-band" id="band"></span>
-        <div class="verdict-title" id="verdictTitle"></div>
-        <p class="verdict-sub" id="verdictSub"></p>
-        <p class="confidence" id="confidence"></p>
-      </div>
+      <div class="vmeter"><div class="vmeter-fill" id="vmeterFill"></div></div>
+      <div class="vmeter-label"><span>Safe</span><span id="vriskNum"></span><span>High scam risk</span></div>
     </div>
 
-    <div id="signalsWrap">
-      <div class="sec-title"><span class="dot"></span>What the lens is picking up</div>
-      <div class="signals" id="signals"></div>
+    <div id="flagsWrap">
+      <div class="sec-title"><span class="dot"></span>Why we flagged it</div>
+      <div class="flags" id="flags"></div>
+    </div>
+
+    <div id="doWrap">
+      <div class="sec-title"><span class="dot"></span>What to do now</div>
+      <div class="do-list" id="doList"></div>
     </div>
 
     <div class="reading-wrap" id="readingWrap">
-      <div class="sec-title"><span class="dot"></span>The story, under the lens</div>
+      <div class="sec-title"><span class="dot"></span>The message, marked up</div>
       <div class="card"><div class="reading" id="reading"></div></div>
     </div>
 
-    <div id="qWrap">
-      <div class="sec-title"><span class="dot"></span>Ask them this</div>
-      <div class="q-list" id="questions"></div>
-    </div>
-
     <div class="honesty">
-      <b>Why we don't say "LIE":</b> decades of research (24,000+ tested judges, every major method) prove no signal in the face, voice, or body reliably reveals lying — and tools that pretend otherwise mostly accuse honest people. What <i>does</i> work is analyzing the story itself: checkable details, pressure tactics, and evasion. TruthLens shows you what to verify — the truth comes out when you check.
+      <b>How this works:</b> Scams follow scripts — fake urgency, untraceable payments, "don't tell anyone", impossible-to-meet lovers, guaranteed returns. Scam Shield reads the wording and matches it against the patterns behind billions in reported fraud. It can't read minds, so a low score isn't a guarantee it's safe — but it catches the tactics scammers reuse every day, and tells you how to check. <b>When unsure, slow down and verify before you send money.</b>
     </div>
   </div>
 
   <footer>
-    <span>TruthLens · reads stories, not minds</span>
-    <span>built on statement-analysis science</span>
+    <span>Scam Shield · catch it before it costs you</span>
+    <span>patterns from FBI &amp; FTC fraud reports</span>
   </footer>
 </div>
 
 <script>
-/* ---------------- demo texts ---------------- */
+/* =================== demos =================== */
 const DEMOS = {
-  scam: `Hello dear, I am Sergeant Mark Williams, US Army, currently deployed overseas on a peacekeeping mission. I have felt a strong connection with you. I need your help urgently — my bank account was locked by the bank security department and I cannot access my funds. Please buy $200 in iTunes gift cards right now and send me the codes, it is 100% safe and I will pay you back double, guaranteed. Please keep this between us, do not tell anyone in your family. Trust me, why would I lie to you? Message me directly on WhatsApp, this site deletes my messages. You must act now, my situation expires today.`,
-  excuse: `I was out with some friends last night — you don't know them. We went to a place in town and left before midnight, I think. The car had some issues, that's why things got delayed. Why are you questioning me? Trust me, nothing happened.`,
-  solid: `I left the office at 6:15pm on Tuesday and took the 6:40 ferry to Hulhumalé with Ahmed from accounts. We had dinner at Kandu Café — I paid 240 rufiyaa by card at 8:05pm, so it's on my bank statement. The waiter, Hassan, knows us. I sent you a photo from the table at 8:20pm. You can call Ahmed or check the receipt — I kept it in my wallet.`
+  romance: `Hello my love, good morning my queen. I feel God brought us together for a reason. I am a US Army engineer currently deployed overseas on a peacekeeping mission, so I cannot video call or meet in person right now. Let's move our chat to WhatsApp where it's more private. I have never felt this way so fast. My darling, I want to share something — I have been making very good money on a crypto investment platform my colleague showed me, returns are guaranteed. If you join with me I will guide you. Start with just $500 and you will see the profit. But please keep this between us, don't tell your family yet. Trust me.`,
+  invest: `🚀 CONGRATULATIONS — you've been selected for our VIP crypto signals group! Our members make guaranteed 30% returns every week, 100% risk-free. This is a limited-time opportunity, only 5 spots left, you must act now. Just deposit to our trading platform and our AI bot does the rest. To withdraw your profits you'll first need to pay a small 15% tax fee in Bitcoin. Don't miss out — easy money, act fast before this closes today!`,
+  bank: `ALERT: Your bank account has been locked by the security department due to suspicious activity. To avoid permanent suspension you must verify your identity immediately. Click here: http://secure-bank-verify.info/login — failure to act within 24 hours will result in your account being closed. Do not share this message. This is your final notice.`,
+  safe: `Hi, it's Sarah from the dentist — just confirming your cleaning appointment on Tuesday the 14th at 2:30pm with Dr. Lee. Our address is 12 Marine Drive. If you need to reschedule call us on the clinic number on your card. See you then!`
 };
 
-/* ---------------- detector engine ---------------- */
-const DETECTORS = [
-  // -------- pressure & scam playbook (red) --------
-  {id:"urgency", tone:"red", label:"Manufactured urgency",
-   why:"Pressure to act immediately is the #1 manipulation tactic — it exists to stop you from checking.",
-   question:"Say: “I’ll decide tomorrow.” A real situation survives 24 hours — a script panics.",
-   weight:-7, cap:2,
-   re:/\b(act now|right now|immediately|urgent(ly)?|asap|last chance|expires? (today|soon)|within \d+ hours?|hurry|you must act|final (warning|notice))\b/gi},
-  {id:"secrecy", tone:"red", label:"Demands secrecy",
-   why:"“Don’t tell anyone” isolates you from the people who would spot the problem instantly.",
-   question:"Tell them you’re discussing it with a friend or family member first — watch the reaction.",
-   weight:-9, cap:2,
-   re:/\b(keep (this|it) between us|don'?t tell (anyone|your|anybody)|our (little )?secret|keep (this|it) (secret|private|quiet)|delete this (message|chat))\b/gi},
-  {id:"oddpay", tone:"red", label:"Untraceable payment",
-   why:"Gift cards, wire transfers and crypto are the payment rails of fraud — untraceable and unrecoverable.",
-   question:"Ask why a normal, reversible payment method won’t work. There is never a good answer.",
-   weight:-12, cap:2,
-   re:/\b(gift ?cards?|itunes|steam card|google play( card)?|western union|moneygram|wire transfer|crypto(currency)?|bitcoin|usdt|prepaid card)\b/gi},
-  {id:"offplatform", tone:"red", label:"Moving you off-platform",
-   why:"Scammers pull conversations to unmonitored channels before the platform flags them.",
-   question:"Keep the conversation where it started and see how hard they push against it.",
-   weight:-6, cap:1,
-   re:/\b(whats?app( me)?|telegram|signal app|text me at|message me directly|email me directly|this (site|app) deletes)\b/gi},
-  {id:"toogood", tone:"red", label:"Too good to be true",
-   why:"Guarantees and “risk-free” returns don’t exist — certainty language is a sales script, not reality.",
-   question:"Ask for one independently checkable proof (regulator, registry, reference) — then actually check it.",
-   weight:-8, cap:2,
-   re:/\b(guaranteed|risk[- ]?free|100% (safe|sure|legit|guaranteed)|double your|no risk|easy money|get rich|pay you back double)\b/gi},
-  {id:"authority", tone:"red", label:"Fake authority pressure",
-   why:"Impersonating banks, military, or government adds false legitimacy and fear — classic script ingredient.",
-   question:"Stop replying and contact that organisation through its official number yourself.",
-   weight:-8, cap:2,
-   re:/\b(bank security( department)?|security department|customs office|tax office|irs|federal agent|police will|arrest warrant|account (was )?(locked|suspended|compromised)|deployed overseas|peacekeeping mission)\b/gi},
+/* =================== engine ===================
+   Each detector: family, tone(danger|caution|safe), label, why, weight, cap, regex.
+   Verdict = total risk; dominant family names the scam type + tailored actions. */
+const DET = [
+  // ---- payment red flags (highest signal) ----
+  {fam:"payment", tone:"danger", label:"Untraceable payment demand", weight:16, cap:2,
+   why:"Gift cards, crypto and wire transfers can't be reversed or traced — the favourite tools of scammers. No real bank or government asks for these.",
+   re:/\b(gift ?cards?|itunes|steam card|google play( card)?|amazon card|western union|moneygram|wire transfer|crypto(currency)?|bitcoin|btc|usdt|ethereum|prepaid card|cash app|zelle to)\b/gi},
+  {fam:"payment", tone:"danger", label:"Pay-a-fee-to-get-paid", weight:18, cap:1,
+   why:"Being asked to pay a 'tax', 'fee' or 'release charge' before you can withdraw or receive money is a guaranteed scam. Real money never works this way.",
+   re:/\b(pay (a |the )?(small )?(tax|fee|charge|deposit)|release (fee|charge)|withdrawal (fee|tax)|clearance fee|to withdraw .* (you|first)|unlock your (funds|profit))\b/gi},
 
-  // -------- evasion & language patterns (amber) --------
-  {id:"trustplea", tone:"amber", label:"Trust pleading",
-   why:"Truth rarely needs a sales pitch. “Trust me / I swear / why would I lie” substitutes emotion for evidence.",
-   question:"Reply: “I don’t need to trust you — just show me.” Then ask for the specific proof.",
-   weight:-3, cap:2,
-   re:/\b(trust me|believe me|i swear|to be honest|honestly|i'?m not lying|why would i lie|god'?s honest|i promise you)\b/gi},
-  {id:"deflection", tone:"amber", label:"Deflects instead of answers",
-   why:"Attacking the question (“why are you asking?”) instead of answering it is a textbook evasion move.",
-   question:"Calmly repeat the exact same question. Innocent people answer; evasive people escalate.",
-   weight:-5, cap:2,
-   re:/\b(don'?t you trust me|why (are|do) you (asking|questioning)|you'?re (paranoid|crazy|overthinking)|just (drop|let) it( go)?|it doesn'?t matter (where|what|who)|stop asking)\b/gi},
-  {id:"vague", tone:"amber", label:"Fog instead of facts",
-   why:"Hedges like “some people, somewhere, at some point” avoid committing to anything that could be checked.",
-   question:"Pin one detail at a time: “Who exactly? Where exactly? What time?” Vague stories crumble on specifics.",
-   weight:-2, cap:4,
-   re:/\b(some (people|guys|friends|place)|somewhere|at some point|i think|i guess|kind of|sort of|probably|around (then|that time)|stuff happened|things (happened|got)|maybe)\b/gi},
-  {id:"distance", tone:"amber", label:"Distancing language",
-   why:"“Stuff happened / things got delayed” removes the person from their own story — ownership disappears when accounts are constructed.",
-   question:"Ask them to retell it as “I did X, then I did Y” — first person, step by step, in order.",
-   weight:-2, cap:2,
-   re:/\b(mistakes were made|it (just )?happened|things (just )?(happened|went wrong)|the money was (sent|taken|moved)|got delayed)\b/gi},
+  // ---- investment / crypto ----
+  {fam:"invest", tone:"danger", label:"Guaranteed / risk-free returns", weight:13, cap:2,
+   why:"No real investment can guarantee profit. 'Guaranteed', 'risk-free' and fixed weekly returns are the language of investment fraud — the #1 scam category by money lost.",
+   re:/\b(guaranteed( returns?| profit)?|risk[- ]?free|100% (safe|sure|profit)|double your money|\d{2,3}% (return|profit|weekly|daily|monthly)|fixed (daily|weekly) (return|profit)|easy money|get rich)\b/gi},
+  {fam:"invest", tone:"caution", label:"'I'll guide you to invest'", weight:9, cap:2,
+   why:"Strangers and online partners who offer to 'teach you to trade' or get you into a special platform are running the 'pig butchering' investment scam — the fastest-growing fraud in the world.",
+   re:/\b(investment platform|trading platform|crypto (platform|investment)|signals group|i will (guide|teach|help) you (to )?(invest|trade)|join (with )?me|vip (group|signals)|trading bot|ai bot does)\b/gi},
 
-  // -------- credibility builders (green) --------
-  {id:"timeanchor", tone:"green", label:"Time-anchored",
-   why:"Exact times and dates are commitments — they can be checked, and liars avoid giving them.",
-   weight:+4, cap:4,
-   re:/\b(\d{1,2}[:.]\d{2}\s?(am|pm)?|\d{1,2}\s?(am|pm)|on (monday|tuesday|wednesday|thursday|friday|saturday|sunday)|yesterday at|today at|last (night|week) at)\b/gi},
-  {id:"verifiable", tone:"green", label:"Checkable evidence offered",
-   why:"Receipts, statements, photos, named witnesses — the story invites verification instead of avoiding it.",
-   weight:+6, cap:4,
-   re:/\b(receipt|invoice|bank statement|on my statement|booking (ref(erence)?|number)|screenshot|cctv|photo (i sent|from)|you can (check|verify|call|ask)|call (him|her|them)|records?)\b/gi},
-  {id:"named", tone:"green", label:"Names real people & places",
-   why:"Named, findable people and places are verifiable anchors — fabricated stories keep characters anonymous.",
-   weight:+4, cap:3,
-   re:/\b(with [A-Z][a-z]+(?: from [a-z]+)?|at [A-Z][a-z]+ (Caf[eé]|Restaurant|Hotel|Bar|Mall|Park|Station)|the (waiter|manager|driver|receptionist),? [A-Z][a-z]+)\b/g},
-  {id:"ownership", tone:"green", label:"Owns the account",
-   why:"First-person, active, chronological telling (“I left, I took, I paid”) is how genuinely experienced events are recalled.",
-   weight:+3, cap:3,
-   re:/\b(i (left|went|took|paid|sent|met|called|kept|drove|arrived|ordered|stayed))\b/gi},
+  // ---- romance / pig butchering ----
+  {fam:"romance", tone:"caution", label:"Can't-ever-meet excuse", weight:11, cap:2,
+   why:"Deployed soldier, oil rig, doctor overseas, 'can't video call' — these are the top excuses scammers use to explain why they can never appear in person. A real partner can show their face.",
+   re:/\b(deployed|peacekeeping|on a (oil ?rig|mission)|in the (army|military)|stationed (abroad|overseas)|working (abroad|overseas|on a rig)|can'?t (video ?call|meet|come)|cannot (video|meet)|united nations|international organization)\b/gi},
+  {fam:"romance", tone:"caution", label:"Fast, intense love language", weight:7, cap:2,
+   why:"'My love / my queen / soulmate / God brought us together' within days, before you've ever met, is love-bombing — building fake trust fast so you'll send money later.",
+   re:/\b(my (love|queen|king|darling|soulmate|dear)|good morning my|god brought us|never felt this way|you are my (everything|destiny)|i (love|adore) you)\b/gi},
+
+  // ---- authority / impersonation ----
+  {fam:"impersonation", tone:"danger", label:"Fake authority + account threat", weight:12, cap:2,
+   why:"'Your account is locked / suspended', fake bank 'security departments', police, tax office, arrest threats — impersonating authority to create panic so you act before thinking.",
+   re:/\b(account (has been |is |was )?(locked|suspended|compromised|frozen|closed)|security department|verify your (identity|account)|suspicious activity (detected|on)|irs|tax office|arrest warrant|police (will|have)|final notice|permanent suspension)\b/gi},
+
+  // ---- links / phishing ----
+  {fam:"phishing", tone:"danger", label:"Suspicious link to click", weight:11, cap:2,
+   why:"Links that ask you to 'log in' or 'verify' lead to fake copies of real sites built to steal your password. Never log in from a link in a message.",
+   re:/\b(click here|tap here|log ?in here|verify (here|now)|https?:\/\/[^\s]*(verify|secure|login|account|confirm)[^\s]*|bit\.ly\/|tinyurl)\b/gi},
+  {fam:"phishing", tone:"caution", label:"'You've won' / prize bait", weight:8, cap:2,
+   why:"Lotteries you didn't enter, prizes, 'you've been selected', surprise refunds and parcels — bait to get you to click or hand over details.",
+   re:/\b(you'?ve (won|been selected|been chosen)|congratulations|claim your (prize|reward|refund)|you are a winner|lucky winner|free (gift|prize)|parcel (is )?waiting|delivery (failed|pending))\b/gi},
+
+  // ---- pressure & secrecy (cross-cutting) ----
+  {fam:"pressure", tone:"caution", label:"Pressure to act immediately", weight:8, cap:2,
+   why:"'Act now', 'last chance', 'expires today', a ticking clock — urgency exists to stop you checking with anyone. Real opportunities and real institutions give you time.",
+   re:/\b(act now|right now|act fast|immediately|urgent(ly)?|asap|last chance|limited[- ]time|only \d+ (spots?|left)|spots? left|expires? (today|soon)|within \d+ hours?|hurry|don'?t miss out|before (this )?(closes|ends))\b/gi},
+  {fam:"pressure", tone:"danger", label:"'Keep this secret'", weight:12, cap:1,
+   why:"'Don't tell your family', 'keep this between us', 'this is private' — isolating you from the people who would instantly spot the scam. This is one of the strongest danger signs there is.",
+   re:/\b(keep (this|it) between us|don'?t tell (anyone|your (family|husband|wife|kids|son|daughter)|anybody)|our (little )?secret|keep (this|it) (secret|private|quiet)|just between (us|you and me))\b/gi},
+  {fam:"pressure", tone:"caution", label:"Move to a private channel", weight:6, cap:1,
+   why:"Pushing you to WhatsApp/Telegram early — off the dating app or platform — gets you somewhere with no scam protection and no record.",
+   re:/\b(move (our|the|to) (chat|conversation)|let'?s (chat|talk|move) (on|to) (whats?app|telegram|signal)|whats?app me|message me on (whats?app|telegram)|more private (here|there|app))\b/gi},
+  {fam:"pressure", tone:"caution", label:"'Just trust me'", weight:5, cap:2,
+   why:"Truth doesn't need a sales pitch. 'Trust me / why would I lie / I promise' is used to push past your doubt instead of giving you proof.",
+   re:/\b(trust me|believe me|i swear|i promise you|why would i lie|i'?m not (a )?(scam|lying)|this is (100% )?(real|legit|genuine))\b/gi},
+
+  // ---- credibility builders (safe) ----
+  {fam:"safe", tone:"safe", label:"Specific, checkable details", weight:-9, cap:4,
+   why:"Real, named, checkable details — a person, place, date, time, official number you already have — are what genuine messages contain and scams avoid.",
+   re:/\b(\d{1,2}[:.]\d{2}\s?(am|pm)?|on (monday|tuesday|wednesday|thursday|friday|saturday|sunday)( the \d{1,2}(st|nd|rd|th)?)?|dr\.? [A-Z][a-z]+|appointment|number on your card|official (number|website|app)|call (us|the clinic|the bank) on|our address is)\b/gi},
 ];
 
-const AMOUNT_RE = /\b\d{1,6}\s?(rufiyaa|dollars?|usd|mvr|ringgit|rm|euros?)\b|\$\d+/gi;
+const SCAN_LINES = ["Reading the message…","Checking scam patterns…","Matching known fraud scripts…","Weighing the danger signs…","Preparing your safety verdict…"];
 
-const SCAN_LINES = [
-  "Scanning statement structure…",
-  "Measuring checkable detail…",
-  "Detecting pressure tactics…",
-  "Weighing evasion patterns…",
-  "Building your credibility report…"
-];
+const TYPE_LABEL = {
+  romance:"Romance / 'pig butchering' scam",
+  invest:"Investment / crypto scam",
+  impersonation:"Bank or authority impersonation",
+  phishing:"Phishing / fake-link scam",
+  payment:"Advance-fee / payment scam",
+  pressure:"High-pressure scam tactics"
+};
+
+/* tailored protective actions per detected scam family */
+const ACTIONS = {
+  romance:[
+    {t:"dont", h:"Do NOT send money, gift cards or crypto", b:"to anyone you have only met online — no matter the story. This is how the money is lost."},
+    {t:"dods", h:"Ask to video-call right now", b:"Real partners can. Scammers always have an excuse not to."},
+    {t:"dods", h:"Reverse-image-search their photos", b:"Stolen photos are reused across many fake profiles — a quick search often exposes them."},
+    {t:"dods", h:"Talk to a family member first", b:"Before sending anything, tell someone you trust. Scammers rely on you keeping it secret."}
+  ],
+  invest:[
+    {t:"dont", h:"Never pay a fee to withdraw 'profits'", b:"That fee is the scam — the profits aren't real and you'll never see the money."},
+    {t:"dont", h:"Don't 'invest' through someone you met online", b:"or a platform from a message. Guaranteed returns do not exist."},
+    {t:"dods", h:"Check the platform on a regulator's warning list", b:"Search the name + 'scam' or your financial regulator's site before putting in a cent."},
+    {t:"dods", h:"Slow down — real opportunities wait", b:"Pressure to act 'today' is designed to stop you checking."}
+  ],
+  impersonation:[
+    {t:"dont", h:"Don't click the link or call the number in the message", b:"It leads to the scammer, not your bank."},
+    {t:"dods", h:"Contact the bank yourself", b:"Use the phone number on the back of your card or the official app. Ask if anything is really wrong."},
+    {t:"dods", h:"Remember: real banks never ask for full passwords or gift cards", b:"or threaten instant closure to rush you."}
+  ],
+  phishing:[
+    {t:"dont", h:"Do NOT click the link", b:"Even if it looks official. Links in scam messages copy real sites to steal your login."},
+    {t:"dods", h:"Go to the real site or app directly", b:"Type the address yourself or use your saved app — never the link you were sent."},
+    {t:"dods", h:"Never enter your password or card details from a link", b:"When in doubt, check with the company through their official channel."}
+  ],
+  payment:[
+    {t:"dont", h:"Stop — do not pay", b:"Gift cards, crypto and wire transfers are demanded because they can't be undone. That's the whole trick."},
+    {t:"dods", h:"Verify independently before any payment", b:"Contact the company or person through a number you find yourself, not one they gave you."},
+    {t:"dods", h:"Tell someone you trust", b:"A second opinion stops most scams cold."}
+  ],
+  pressure:[
+    {t:"dods", h:"Slow everything down", b:"Urgency and secrecy are pressure tactics. Anything real survives a 24-hour pause and a chat with family."},
+    {t:"dods", h:"Verify through an official channel you find yourself", b:"Don't use links or numbers from the message."},
+    {t:"dods", h:"When in doubt, don't send money or details", b:"You can always say 'I'll get back to you' and check first."}
+  ],
+  none:[
+    {t:"dods", h:"No obvious scam signals — but stay alert", b:"This wasn't a guarantee it's safe. If it involves money, a link, or a stranger, verify through an official channel before acting."},
+    {t:"dods", h:"Trust your gut", b:"If something still feels off, ask someone you trust before you reply or send anything."}
+  ]
+};
 
 const $ = s => document.querySelector(s);
 
-/* ---------------- analysis (pure) ---------------- */
+/* ---------- analysis ---------- */
 function analyze(text){
   const hits = [];
-  let score = 50;
-
-  for(const d of DETECTORS){
+  let risk = 0;
+  const famScore = {};
+  for(const d of DET){
     d.re.lastIndex = 0;
-    const matches = [];
-    let m;
-    while((m = d.re.exec(text)) !== null){
-      matches.push({str:m[0], index:m.index});
-      if(matches.length >= 12) break;
-    }
+    const matches = []; let m;
+    while((m = d.re.exec(text)) !== null){ matches.push({str:m[0], index:m.index}); if(matches.length>=12) break; }
     if(matches.length){
       const counted = Math.min(matches.length, d.cap);
-      score += d.weight * counted;
+      const contribution = d.weight * counted;
+      risk += contribution;
+      if(d.tone !== "safe"){ famScore[d.fam] = (famScore[d.fam]||0) + Math.abs(contribution); }
       hits.push({d, matches, counted});
     }
   }
-
-  AMOUNT_RE.lastIndex = 0;
-  const amts = text.match(AMOUNT_RE) || [];
-  if(amts.length){ score += Math.min(amts.length,2) * 3; }
+  // dominant scam family. 'payment' and 'pressure' are mechanisms that ride on top of a
+  // themed scam (romance/invest/impersonation/phishing) — only headline them if no theme is present.
+  const MECH = {payment:1, pressure:1};
+  let domFam = "none", best = 0;
+  for(const f in famScore){ if(MECH[f]) continue; if(famScore[f] > best){ best = famScore[f]; domFam = f; } }
+  if(domFam === "none"){
+    if(famScore.payment){ domFam = "payment"; }
+    else if(famScore.pressure){ domFam = "pressure"; }
+  }
 
   const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-  let conf = "high", confNote = "Based on " + words + " words and " + hits.length + " signal families.";
-  if(words < 35){ conf = "low"; confNote = "Only " + words + " words so far — first impression, not a reading."; score = 50 + (score-50)*0.6; }
-  else if(words < 80){ conf = "medium"; confNote = "Moderate sample (" + words + " words). More talk sharpens the lens."; }
+  let riskPct = Math.max(0, Math.min(100, Math.round(risk)));
+  // very short text → soften extremes a touch
+  if(words < 12 && riskPct > 0) riskPct = Math.round(riskPct * 0.7);
 
-  score = Math.max(5, Math.min(95, Math.round(score)));
-  return {score, hits, conf, confNote, words};
+  let level = riskPct >= 55 ? "danger" : riskPct >= 22 ? "caution" : "safe";
+  const dangerHits = hits.filter(h=>h.d.tone!=="safe").length;
+  if(level === "safe" && dangerHits === 0) riskPct = Math.min(riskPct, 8);
+
+  return {hits, riskPct, level, domFam, words, dangerHits};
 }
 
-/* ---------------- shared render ---------------- */
+/* ---------- shared markup ---------- */
 function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-
+function toneMark(t){ return t==="safe" ? "m-safe" : t==="caution" ? "m-caution" : "m-danger"; }
 function highlightHTML(text, hits){
   const spans = [];
   hits.forEach(h => h.matches.forEach(m => spans.push({start:m.index, end:m.index+m.str.length, tone:h.d.tone})));
   spans.sort((a,b)=>a.start-b.start);
-  const flat = [];
-  let lastEnd = -1;
-  for(const s of spans){ if(s.start >= lastEnd){ flat.push(s); lastEnd = s.end; } }
-  let html = "", pos = 0;
-  const toneClass = {red:"m-red", amber:"m-amber", green:"m-green"};
-  for(const s of flat){
-    html += esc(text.slice(pos, s.start));
-    html += '<mark class="'+toneClass[s.tone]+'">'+esc(text.slice(s.start, s.end))+'</mark>';
-    pos = s.end;
-  }
-  html += esc(text.slice(pos));
+  const flat=[]; let lastEnd=-1;
+  for(const s of spans){ if(s.start>=lastEnd){ flat.push(s); lastEnd=s.end; } }
+  let html="", pos=0;
+  for(const s of flat){ html+=esc(text.slice(pos,s.start)); html+='<mark class="'+toneMark(s.tone)+'">'+esc(text.slice(s.start,s.end))+'</mark>'; pos=s.end; }
+  html+=esc(text.slice(pos));
   return html;
 }
 
+/* ---------- render ---------- */
 function render(r, text, opts){
   opts = opts || {};
   const live = !!opts.live;
 
-  // gauge
-  const C = 2 * Math.PI * 76;
-  const bar = $("#gaugeBar");
-  const color = r.score >= 65 ? "var(--green)" : r.score >= 33 ? "var(--amber)" : "var(--red)";
-  bar.style.stroke = color;
-  bar.style.strokeDasharray = C;
-  $("#gaugeNum").style.color = color;
+  const v = $("#verdict");
+  v.className = "verdict " + r.level;
+  const badge = {danger:"⛔", caution:"⚠️", safe:"✅"}[r.level];
+  $("#vbadge").textContent = badge;
 
-  // verdict
-  const band = $("#band"), vt = $("#verdictTitle"), vs = $("#verdictSub");
-  if(r.score >= 65){
-    band.textContent = "holds up"; band.style.background = "var(--green-soft)"; band.style.color = "var(--green)";
-    vt.textContent = "This story invites checking.";
-    vs.textContent = "It commits to specifics — times, names, evidence you could actually verify. That's how genuine accounts behave. Verify one detail to be sure.";
-  } else if(r.score >= 33){
-    band.textContent = "mixed signals"; band.style.background = "var(--amber-soft)"; band.style.color = "var(--amber)";
-    vt.textContent = "Verify before you trust it.";
-    vs.textContent = "Parts of this don't commit to anything checkable. That doesn't prove dishonesty — but don't settle it until the questions below get straight answers.";
+  let title, type;
+  if(r.level === "danger"){
+    title = "Likely a scam — do not send money";
+    type = "This matches a " + (TYPE_LABEL[r.domFam] || "known scam") + ". Strong danger signs below.";
+  } else if(r.level === "caution"){
+    title = "Be careful — this has scam warning signs";
+    type = (r.domFam!=="none" ? "Looks like it could be a " + (TYPE_LABEL[r.domFam]||"scam") + ". " : "") + "Verify before you trust it.";
   } else {
-    band.textContent = "weak story"; band.style.background = "var(--red-soft)"; band.style.color = "var(--red)";
-    vt.textContent = "Do not act on this. Verify first.";
-    vs.textContent = "This leans on pressure and avoids anything checkable — the signature of manipulation. Slow everything down and verify independently before doing anything it asks.";
+    title = "No clear scam signals found";
+    type = "Nothing obvious stood out — but this isn't a guarantee. Stay alert if money, links or strangers are involved.";
   }
-  $("#confidence").textContent = "Confidence: " + r.conf + " · " + r.confNote;
+  $("#vtitle").textContent = title;
+  $("#vtype").textContent = type;
+  $("#vriskNum").textContent = "Risk " + r.riskPct + "%";
 
-  // signals
-  const sw = $("#signals");
-  sw.innerHTML = "";
-  const sorted = [...r.hits].sort((a,b)=> Math.abs(b.d.weight*b.counted) - Math.abs(a.d.weight*a.counted));
-  if(!sorted.length){
-    sw.innerHTML = '<div class="signal amber" style="animation-delay:.05s"><div class="icon">·</div><div><h4>No strong patterns yet</h4><p>Nothing stands out either way so far — keep the conversation going.</p></div></div>';
+  // flags
+  const fw = $("#flags");
+  fw.innerHTML = "";
+  const danger = r.hits.filter(h=>h.d.tone!=="safe").sort((a,b)=> (b.d.weight*b.counted)-(a.d.weight*a.counted));
+  const safe = r.hits.filter(h=>h.d.tone==="safe");
+  const show = danger.length ? danger : safe;
+  if(!show.length){
+    fw.innerHTML = '<div class="flag safe" style="animation-delay:.05s"><div class="icon">✓</div><div><h4>No scam wording detected</h4><p>None of the common scam tactics showed up in this text.</p></div></div>';
   }
-  sorted.forEach((h,i)=>{
+  show.slice(0,7).forEach((h,i)=>{
     const el = document.createElement("div");
-    el.className = "signal " + h.d.tone;
-    el.style.animationDelay = (live ? 0.03*i : 0.08*i + 0.1) + "s";
-    const icon = h.d.tone === "green" ? "✓" : h.d.tone === "red" ? "!" : "?";
+    el.className = "flag " + h.d.tone;
+    el.style.animationDelay = (live?0.03*i:0.07*i+0.1)+"s";
+    const icon = h.d.tone==="safe" ? "✓" : h.d.tone==="danger" ? "!" : "?";
     const q = esc(h.matches[h.matches.length-1].str);
     el.innerHTML = '<div class="icon">'+icon+'</div><div><h4>'+h.d.label+
-      (h.matches.length>1 ? ' <span style="font-weight:400;color:var(--ink-faint)">×'+h.matches.length+'</span>':'')+
-      '</h4><p>'+h.d.why+'</p><span class="quote">“'+q+'”</span></div>';
-    sw.appendChild(el);
+      (h.matches.length>1?' <span style="font-weight:400;color:var(--ink-faint)">×'+h.matches.length+'</span>':'')+
+      '</h4><p>'+h.d.why+'</p><span class="quote">"'+q+'"</span></div>';
+    fw.appendChild(el);
   });
 
-  // reading (paste mode only — live mode highlights the transcript itself)
-  if(live){
-    $("#readingWrap").style.display = "none";
-  } else {
-    $("#readingWrap").style.display = "block";
-    $("#reading").innerHTML = highlightHTML(text, r.hits);
-  }
-
-  // questions
-  const qs = [];
-  for(const h of sorted){ if(h.d.question && !qs.includes(h.d.question)) qs.push(h.d.question); }
-  if(r.score >= 65 && !qs.length){ qs.push("Pick ONE checkable detail (the receipt, the named person, the timestamp) and verify it. One confirmed anchor is worth more than any gut feeling."); }
-  if(!qs.length){ qs.push("Ask for one specific, checkable detail: “Who exactly, where exactly, what time?” Then verify it independently."); }
-  const qw = $("#questions");
-  qw.innerHTML = "";
-  qs.slice(0,5).forEach((q,i)=>{
+  // actions
+  const acts = (r.level==="safe" && r.dangerHits===0) ? ACTIONS.none : (ACTIONS[r.domFam] || ACTIONS.pressure);
+  const dl = $("#doList");
+  dl.innerHTML = "";
+  acts.forEach((a,i)=>{
     const el = document.createElement("div");
-    el.className = "q";
-    el.style.animationDelay = (live ? 0.03*i : 0.08*i + 0.15) + "s";
-    el.innerHTML = q;
-    qw.appendChild(el);
+    el.className = "do " + (a.t==="dont"?"dont":"dods");
+    el.style.animationDelay = (live?0.03*i:0.07*i+0.15)+"s";
+    el.innerHTML = '<span class="di">'+(a.t==="dont"?"✕":"✓")+'</span><div><b>'+a.h+'</b> — '+a.b+'</div>';
+    dl.appendChild(el);
   });
 
-  // show + gauge animation
+  // marked-up reading (paste only)
+  if(live){ $("#readingWrap").style.display="none"; }
+  else { $("#readingWrap").style.display="block"; $("#reading").innerHTML = highlightHTML(text, r.hits); }
+
   const results = $("#results");
   const wasOn = results.classList.contains("on");
   results.classList.add("on");
-  if(!live && !wasOn){ results.scrollIntoView({behavior:"smooth", block:"start"}); }
+  if(!live && !wasOn) results.scrollIntoView({behavior:"smooth", block:"start"});
 
-  if(live){
-    bar.style.transition = "stroke-dashoffset .6s ease, stroke .5s";
-    bar.style.strokeDashoffset = C * (1 - r.score/100);
-    $("#gaugeNum").textContent = r.score;
-  } else {
-    bar.style.transition = "stroke-dashoffset 1.2s cubic-bezier(.3,.8,.2,1), stroke .5s";
-    bar.style.strokeDashoffset = C;
-    setTimeout(()=>{
-      bar.style.strokeDashoffset = C * (1 - r.score/100);
-      animateNum($("#gaugeNum"), r.score, 1200);
-    }, 30);
-  }
+  const fill = $("#vmeterFill");
+  if(live){ fill.style.transition="width .5s ease"; fill.style.width = r.riskPct+"%"; }
+  else { fill.style.transition="none"; fill.style.width="0%"; setTimeout(()=>{ fill.style.transition="width 1.1s cubic-bezier(.3,.8,.2,1)"; fill.style.width=r.riskPct+"%"; },30); }
 }
 
-function animateNum(el, target, dur){
-  const t0 = performance.now();
-  function step(t){
-    const p = Math.min(1, (t-t0)/dur);
-    const eased = 1 - Math.pow(1-p, 3);
-    el.textContent = Math.round(target * eased);
-    if(p < 1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-  setTimeout(()=>{ el.textContent = target; }, dur + 80); // lands even if frames are throttled
-}
-
-/* ---------------- tabs ---------------- */
-const tabLive = $("#tabLive"), tabPaste = $("#tabPaste");
+/* ---------- tabs ---------- */
+const tabLive=$("#tabLive"), tabPaste=$("#tabPaste");
 function showPane(which){
-  tabLive.classList.toggle("active", which === "live");
-  tabPaste.classList.toggle("active", which === "paste");
-  $("#paneLive").classList.toggle("active", which === "live");
-  $("#panePaste").classList.toggle("active", which === "paste");
+  tabLive.classList.toggle("active", which==="live");
+  tabPaste.classList.toggle("active", which==="paste");
+  $("#paneLive").classList.toggle("active", which==="live");
+  $("#panePaste").classList.toggle("active", which==="paste");
   $("#results").classList.remove("on");
 }
-tabLive.addEventListener("click", ()=>{ showPane("live"); if(liveText) renderLive(); });
 tabPaste.addEventListener("click", ()=>{ showPane("paste"); stopListening(); });
+tabLive.addEventListener("click", ()=>{ showPane("live"); if(liveText) renderLive(); });
 
-/* ---------------- paste mode ---------------- */
-const input = $("#input");
-document.querySelectorAll(".chip").forEach(c=>{
-  c.addEventListener("click",()=>{ input.value = DEMOS[c.dataset.demo]; input.focus(); });
-});
+/* ---------- paste ---------- */
+const input=$("#input");
+document.querySelectorAll(".chip").forEach(c=>{ c.addEventListener("click",()=>{ input.value=DEMOS[c.dataset.demo]; input.focus(); }); });
 $("#clear").addEventListener("click",()=>{ input.value=""; $("#results").classList.remove("on"); input.focus(); });
 $("#go").addEventListener("click",()=>{
-  const text = input.value.trim();
-  if(text.length < 15){ input.focus(); input.placeholder="Paste at least a sentence or two first…"; return; }
-  const scanner = $("#scanner");
+  const text=input.value.trim();
+  if(text.length<10){ input.focus(); input.placeholder="Paste a message first…"; return; }
+  const scanner=$("#scanner");
   $("#results").classList.remove("on");
   scanner.classList.add("on");
-  $("#go").disabled = true;
-  let i = 0;
-  $("#scanText").textContent = SCAN_LINES[0];
-  const tick = setInterval(()=>{ i++; if(i < SCAN_LINES.length){ $("#scanText").textContent = SCAN_LINES[i]; } }, 380);
-  setTimeout(()=>{
-    clearInterval(tick);
-    scanner.classList.remove("on");
-    $("#go").disabled = false;
-    render(analyze(text), text);
-  }, 380 * SCAN_LINES.length + 200);
+  $("#go").disabled=true;
+  let i=0; $("#scanText").textContent=SCAN_LINES[0];
+  const tick=setInterval(()=>{ i++; if(i<SCAN_LINES.length) $("#scanText").textContent=SCAN_LINES[i]; },340);
+  setTimeout(()=>{ clearInterval(tick); scanner.classList.remove("on"); $("#go").disabled=false; render(analyze(text), text); }, 340*SCAN_LINES.length+150);
 });
 
-/* ---------------- live mode ---------------- */
-let recognition = null;
-let listening = false;
-let liveText = "";       // accumulated final transcript
-let interimText = "";
-
+/* ---------- live ---------- */
+let recognition=null, listening=false, liveText="", interimText="";
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 function setStatus(){
-  const st = $("#liveStatus");
-  if(listening){
-    st.innerHTML = '<span class="dot"></span>Listening… let them talk';
-    st.classList.add("listening-status");
-    $("#liveStage").classList.add("listening");
-  } else {
-    st.innerHTML = '<span class="dot"></span>' + (liveText ? "Paused — tap to resume" : "Tap to start listening");
-    st.classList.remove("listening-status");
-    $("#liveStage").classList.remove("listening");
-  }
+  const st=$("#liveStatus");
+  if(listening){ st.innerHTML='<span class="dot"></span>Listening…'; st.classList.add("listening-status"); $("#liveStage").classList.add("listening"); }
+  else { st.innerHTML='<span class="dot"></span>'+(liveText?"Paused — tap to resume":"Tap to listen to a call or conversation"); st.classList.remove("listening-status"); $("#liveStage").classList.remove("listening"); }
 }
-
 function updateTranscript(){
-  const t = $("#transcript");
-  if(!liveText && !interimText){
-    t.innerHTML = '<span class="placeholder">The conversation will appear here as they speak…</span>';
-    return;
-  }
-  const r = analyze(liveText);
-  t.innerHTML = highlightHTML(liveText, r.hits) + (interimText ? ' <span class="interim">'+esc(interimText)+'</span>' : '');
+  const t=$("#transcript");
+  if(!liveText && !interimText){ t.innerHTML='<span class="placeholder">What\'s said will appear here as you listen…</span>'; return; }
+  const r=analyze(liveText);
+  t.innerHTML = highlightHTML(liveText, r.hits) + (interimText?' <span class="interim">'+esc(interimText)+'</span>':'');
   t.parentElement.scrollTop = t.parentElement.scrollHeight;
 }
-
-function renderLive(){
-  if(!liveText) return;
-  render(analyze(liveText), liveText, {live:true});
-}
-
-/* exposed for testing + future integrations (e.g. call audio, Whisper) */
-function liveIngest(finalChunk){
-  liveText = (liveText + " " + finalChunk).trim();
-  interimText = "";
-  updateTranscript();
-  renderLive();
-}
+function renderLive(){ if(liveText) render(analyze(liveText), liveText, {live:true}); }
+function liveIngest(chunk){ liveText=(liveText+" "+chunk).trim(); interimText=""; updateTranscript(); renderLive(); }
 window.liveIngest = liveIngest;
+window.analyze = analyze; window.DEMOS = DEMOS; window.render = render;
 
 function startListening(){
-  if(!SR){
-    const ns = $("#noSpeech");
-    ns.style.display = "block";
-    ns.textContent = "Live listening needs Chrome (or Edge) — this browser doesn't support speech recognition. The Paste tab works everywhere.";
-    return;
-  }
-  recognition = new SR();
-  recognition.continuous = true;
-  recognition.interimResults = true;
-  recognition.lang = "en-US";
-  recognition.onresult = (e)=>{
-    let interim = "";
-    for(let i = e.resultIndex; i < e.results.length; i++){
-      const res = e.results[i];
-      if(res.isFinal){ liveIngest(res[0].transcript.trim()); }
-      else { interim += res[0].transcript; }
-    }
-    if(interim){ interimText = interim; updateTranscript(); }
-  };
-  recognition.onerror = (e)=>{
-    if(e.error === "not-allowed" || e.error === "service-not-allowed"){
-      listening = false;
-      const ns = $("#noSpeech");
-      ns.style.display = "block";
-      ns.textContent = "Microphone blocked. Allow mic access for this site (click the icon in the address bar), then tap the mic again.";
-      setStatus();
-    }
-  };
-  recognition.onend = ()=>{ if(listening){ try{ recognition.start(); }catch(_){} } };
-  try{ recognition.start(); listening = true; }catch(_){ listening = false; }
-  $("#noSpeech").style.display = "none";
-  setStatus();
+  if(!SR){ const ns=$("#noSpeech"); ns.style.display="block"; ns.textContent="Live listening needs Chrome or Edge — your browser (or iPhone) doesn't support it. The 'Check a message' tab works everywhere."; return; }
+  recognition=new SR(); recognition.continuous=true; recognition.interimResults=true; recognition.lang="en-US";
+  recognition.onresult=(e)=>{ let interim=""; for(let i=e.resultIndex;i<e.results.length;i++){ const res=e.results[i]; if(res.isFinal) liveIngest(res[0].transcript.trim()); else interim+=res[0].transcript; } if(interim){ interimText=interim; updateTranscript(); } };
+  recognition.onerror=(e)=>{ if(e.error==="not-allowed"||e.error==="service-not-allowed"){ listening=false; const ns=$("#noSpeech"); ns.style.display="block"; ns.textContent="Microphone blocked. Allow mic access for this site (icon in the address bar), then tap the mic again."; setStatus(); } };
+  recognition.onend=()=>{ if(listening){ try{ recognition.start(); }catch(_){} } };
+  try{ recognition.start(); listening=true; }catch(_){ listening=false; }
+  $("#noSpeech").style.display="none"; setStatus();
 }
-
-function stopListening(){
-  listening = false;
-  if(recognition){ try{ recognition.stop(); }catch(_){} }
-  setStatus();
-}
-
-$("#micBtn").addEventListener("click", ()=>{ listening ? stopListening() : startListening(); });
-$("#resetLive").addEventListener("click", ()=>{
-  liveText = ""; interimText = "";
-  $("#results").classList.remove("on");
-  updateTranscript();
-  setStatus();
-});
+function stopListening(){ listening=false; if(recognition){ try{ recognition.stop(); }catch(_){} } setStatus(); }
+$("#micBtn").addEventListener("click", ()=>{ listening?stopListening():startListening(); });
+$("#resetLive").addEventListener("click", ()=>{ liveText=""; interimText=""; $("#results").classList.remove("on"); updateTranscript(); setStatus(); });
 
 setStatus();
 </script>
